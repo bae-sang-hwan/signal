@@ -134,15 +134,11 @@ const styles = StyleSheet.create({
   settingsBtn: {
     width: 36,
     height: 36,
-    borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.card,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   settingsIcon: {
-    fontSize: 16,
+    fontSize: 22,
     color: colors.muted,
   },
   dividerLabel: {
