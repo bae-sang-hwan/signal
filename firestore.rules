@@ -7,11 +7,23 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read: if isSignedIn();
-      allow write: if isSignedIn() && request.auth.uid == uid;
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      // 페어링 확정 시 상대(호스트) 문서의 pairId만 예외적으로 쓸 수 있음.
+      allow update: if isSignedIn() && (
+        request.auth.uid == uid ||
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pairId'])
+      );
+      allow delete: if false;
     }
 
     match /pairs/{pairId} {
-      allow read, write: if isSignedIn();
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.hostUid == request.auth.uid;
+      // pending -> active 전환은 호스트 본인이 아닌 초대받은 쪽만.
+      allow update: if isSignedIn()
+        && resource.data.status == 'pending'
+        && request.auth.uid != resource.data.hostUid;
+      allow delete: if false;
     }
   }
 }

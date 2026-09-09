@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signInWithPhoneNumber } from '@react-native-firebase/auth';
 import { doc, getDoc } from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
+import { CodeBoxInput } from '../components/CodeBoxInput';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
@@ -32,7 +33,6 @@ export function OtpVerifyScreen({ navigation, route }: Props) {
   const [verifying, setVerifying] = useState(false);
   const [resending, setResending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (!getPendingConfirmation()) {
@@ -96,28 +96,12 @@ export function OtpVerifyScreen({ navigation, route }: Props) {
       <Text style={styles.title}>코드를 입력하세요</Text>
       <Text style={styles.desc}>{formatKoreanPhone(phoneDigits)}로 보낸 6자리 코드를 넣어주세요.</Text>
 
-      <Pressable style={styles.boxesRow} onPress={() => inputRef.current?.focus()}>
-        {Array.from({ length: CODE_LENGTH }).map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.box,
-              i === code.length && !verifying && styles.boxActive,
-            ]}
-          >
-            <Text style={styles.boxText}>{code[i] ?? ''}</Text>
-          </View>
-        ))}
-      </Pressable>
-
-      <TextInput
-        ref={inputRef}
+      <CodeBoxInput
+        length={CODE_LENGTH}
         value={code}
         onChangeText={(t) => setCode(t.replace(/\D/g, '').slice(0, CODE_LENGTH))}
         keyboardType="number-pad"
-        autoFocus
         editable={!verifying}
-        style={styles.hiddenInput}
       />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -144,35 +128,6 @@ const styles = StyleSheet.create({
     color: colors.muted,
     lineHeight: 21,
     marginTop: 10,
-  },
-  boxesRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 32,
-  },
-  box: {
-    width: 44,
-    height: 54,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    backgroundColor: colors.card,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  boxActive: {
-    borderColor: colors.ink,
-  },
-  boxText: {
-    fontFamily: fonts.semiBold,
-    fontSize: 20,
-    color: colors.ink,
-  },
-  hiddenInput: {
-    position: 'absolute',
-    opacity: 0,
-    height: 1,
-    width: 1,
   },
   error: {
     fontFamily: fonts.regular,
