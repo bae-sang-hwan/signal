@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.signal.app",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#F6F4EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
