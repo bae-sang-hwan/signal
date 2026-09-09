@@ -7,6 +7,7 @@ import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
+import { BrandMark } from '../components/BrandMark';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -33,7 +34,7 @@ export function SplashScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.orb} />
+      <BrandMark size={68} />
       <Text style={styles.title}>시그널</Text>
     </View>
   );
@@ -46,12 +47,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 20,
-  },
-  orb: {
-    width: 68,
-    height: 68,
-    borderRadius: 34,
-    backgroundColor: colors.red,
   },
   title: {
     fontFamily: fonts.semiBold,
