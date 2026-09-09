@@ -1,4 +1,6 @@
+import { doc, serverTimestamp, updateDoc } from '@react-native-firebase/firestore';
 import { SignalColor } from '../theme/colors';
+import { db } from './firebase';
 
 // 기본 색상 문구. 08 설정 > 색상 문구 편집에서 커플별로 바꿀 수 있게 될 예정(2차).
 export const signalCaption: Record<SignalColor, string> = {
@@ -12,4 +14,11 @@ export const signalOrder: SignalColor[] = ['red', 'amber', 'green'];
 export function nextSignalColor(current: SignalColor): SignalColor {
   const idx = signalOrder.indexOf(current);
   return signalOrder[(idx + 1) % signalOrder.length];
+}
+
+export function updateMyColor(uid: string, color: SignalColor) {
+  return updateDoc(doc(db, 'users', uid), {
+    currentColor: color,
+    colorUpdatedAt: serverTimestamp(),
+  });
 }

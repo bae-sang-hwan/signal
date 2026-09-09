@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { doc, onSnapshot, updateDoc } from '@react-native-firebase/firestore';
+import { doc, onSnapshot } from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { SignalDial } from '../components/SignalDial';
@@ -9,7 +9,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-import { nextSignalColor, signalCaption } from '../lib/signalCopy';
+import { nextSignalColor, signalCaption, updateMyColor } from '../lib/signalCopy';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeSolo'>;
 
@@ -39,7 +39,7 @@ export function HomeSoloScreen({ navigation }: Props) {
     if (!uid) return;
     const next = nextSignalColor(color);
     setColor(next);
-    updateDoc(doc(db, 'users', uid), { currentColor: next }).catch(() => {
+    updateMyColor(uid, next).catch(() => {
       setColor(color);
     });
   }
