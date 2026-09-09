@@ -9,9 +9,7 @@ import { LabeledField } from '../components/LabeledField';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-
-const MIN_LEN = 2;
-const MAX_LEN = 10;
+import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Nickname'>;
 
@@ -27,7 +25,7 @@ export function NicknameScreen({ navigation }: Props) {
   }, [navigation]);
 
   const trimmed = nickname.trim();
-  const isValid = trimmed.length >= MIN_LEN && trimmed.length <= MAX_LEN;
+  const isValid = isValidNickname(trimmed);
 
   async function handleSubmit() {
     const uid = auth.currentUser?.uid;
@@ -69,7 +67,7 @@ export function NicknameScreen({ navigation }: Props) {
             setNickname(t);
           }}
           placeholder="이름을 입력해주세요"
-          maxLength={MAX_LEN}
+          maxLength={NICKNAME_MAX_LEN}
           autoFocus
           error={error}
         />
