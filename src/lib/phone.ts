@@ -4,10 +4,10 @@ export function formatKoreanPhone(rawDigits: string): string {
   const digits = rawDigits.replace(/\D/g, '').slice(0, 11);
   if (digits.length <= 3) return digits;
   if (digits.length <= 7) {
-    return `${digits.slice(0, 3)} · ${digits.slice(3)}`;
+    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
   }
   const middleLen = digits.length - 7;
-  return `${digits.slice(0, 3)} · ${digits.slice(3, 3 + middleLen)} · ${digits.slice(3 + middleLen)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 3 + middleLen)}-${digits.slice(3 + middleLen)}`;
 }
 
 export function extractDigits(formatted: string): string {

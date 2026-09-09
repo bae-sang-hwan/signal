@@ -1,14 +1,5 @@
 import { useState } from 'react';
-import {
-  Alert,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signInWithPhoneNumber } from '@react-native-firebase/auth';
 import { RootStackParamList } from '../navigation/types';
@@ -77,7 +68,7 @@ export function LoginScreen({ navigation }: Props) {
         <TextInput
           value={display}
           onChangeText={handleChangeText}
-          placeholder="010 · 0000 · 0000"
+          placeholder="010-0000-0000"
           placeholderTextColor={colors.faint}
           keyboardType="number-pad"
           style={styles.field}
@@ -93,15 +84,6 @@ export function LoginScreen({ navigation }: Props) {
             loading={loading}
           />
         </View>
-
-        <Pressable
-          onPress={() =>
-            Alert.alert('문제가 있나요?', '번호를 다시 확인하거나 앱을 재시작해보세요.')
-          }
-          style={styles.linkWrap}
-        >
-          <Text style={styles.link}>문제가 있나요?</Text>
-        </Pressable>
       </ScreenContainer>
     </KeyboardAvoidingView>
   );
@@ -149,15 +131,5 @@ const styles = StyleSheet.create({
   },
   btnWrap: {
     marginTop: 28,
-  },
-  linkWrap: {
-    marginTop: 18,
-    alignItems: 'center',
-  },
-  link: {
-    fontFamily: fonts.regular,
-    fontSize: 13,
-    color: colors.muted,
-    textDecorationLine: 'underline',
   },
 });
