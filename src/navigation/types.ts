@@ -8,4 +8,5 @@ export type RootStackParamList = {
   EnterCode: undefined;
   HomeConnected: undefined;
   Settings: undefined;
+  ColorCaptions: undefined;
 };

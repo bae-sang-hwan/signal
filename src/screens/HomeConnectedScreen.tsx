@@ -9,7 +9,7 @@ import { SettingsButton } from '../components/SettingsButton';
 import { colors, signalColorMap, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-import { nextSignalColor, signalCaption, updateMyColor } from '../lib/signalCopy';
+import { nextSignalColor, resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
 import { formatRelativeTime } from '../lib/relativeTime';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeConnected'>;
@@ -23,6 +23,7 @@ export function HomeConnectedScreen({ navigation }: Props) {
   const [partnerNickname, setPartnerNickname] = useState('');
   const [partnerColor, setPartnerColor] = useState<SignalColor>('green');
   const [partnerUpdatedAt, setPartnerUpdatedAt] = useState<Date | null>(null);
+  const [partnerCaptions, setPartnerCaptions] = useState<Partial<SignalCaptions> | undefined>();
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -60,6 +61,7 @@ export function HomeConnectedScreen({ navigation }: Props) {
       if (!data) return;
       setPartnerNickname(data.nickname ?? '');
       if (data.currentColor) setPartnerColor(data.currentColor as SignalColor);
+      setPartnerCaptions(data.captions as Partial<SignalCaptions> | undefined);
       const updatedAt = data.colorUpdatedAt as Timestamp | undefined;
       setPartnerUpdatedAt(updatedAt ? updatedAt.toDate() : null);
     });
@@ -100,7 +102,7 @@ export function HomeConnectedScreen({ navigation }: Props) {
         <View style={styles.partnerText}>
           <Text style={styles.partnerName}>{partnerNickname}</Text>
           <Text style={styles.partnerCaption}>
-            {signalCaption[partnerColor]} · {formatRelativeTime(partnerUpdatedAt)}
+            {resolveCaption(partnerCaptions, partnerColor)} · {formatRelativeTime(partnerUpdatedAt)}
           </Text>
         </View>
       </View>

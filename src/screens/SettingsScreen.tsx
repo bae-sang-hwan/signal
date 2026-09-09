@@ -182,9 +182,7 @@ export function SettingsScreen({ navigation }: Props) {
       <Row
         label="색상 문구 편집"
         value="›"
-        onPress={() =>
-          Alert.alert('준비 중이에요', '색상 문구 편집은 다음 업데이트에서 제공될 예정이에요.')
-        }
+        onPress={() => navigation.navigate('ColorCaptions')}
       />
 
       <View style={styles.row}>

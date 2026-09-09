@@ -10,6 +10,7 @@ import { InviteCodeScreen } from '../screens/InviteCodeScreen';
 import { EnterCodeScreen } from '../screens/EnterCodeScreen';
 import { HomeConnectedScreen } from '../screens/HomeConnectedScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
+import { ColorCaptionsScreen } from '../screens/ColorCaptionsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -29,6 +30,7 @@ export function RootNavigator() {
         <Stack.Screen name="EnterCode" component={EnterCodeScreen} />
         <Stack.Screen name="HomeConnected" component={HomeConnectedScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="ColorCaptions" component={ColorCaptionsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

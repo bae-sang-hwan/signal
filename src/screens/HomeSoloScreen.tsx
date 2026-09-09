@@ -10,13 +10,14 @@ import { SettingsButton } from '../components/SettingsButton';
 import { colors, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-import { nextSignalColor, signalCaption, updateMyColor } from '../lib/signalCopy';
+import { nextSignalColor, resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeSolo'>;
 
 export function HomeSoloScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string | null>(null);
   const [color, setColor] = useState<SignalColor>('green');
+  const [captions, setCaptions] = useState<Partial<SignalCaptions> | undefined>();
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -29,6 +30,7 @@ export function HomeSoloScreen({ navigation }: Props) {
       if (!data) return;
       setNickname(data.nickname ?? '');
       if (data.currentColor) setColor(data.currentColor as SignalColor);
+      setCaptions(data.captions as Partial<SignalCaptions> | undefined);
       if (data.pairId) {
         navigation.reset({ index: 0, routes: [{ name: 'HomeConnected' }] });
       }
@@ -62,7 +64,7 @@ export function HomeSoloScreen({ navigation }: Props) {
 
       <View style={styles.dialWrap}>
         <SignalDial color={color} onPress={handleCyclePress} />
-        <Text style={styles.caption}>지금 상태: {signalCaption[color]}</Text>
+        <Text style={styles.caption}>지금 상태: {resolveCaption(captions, color)}</Text>
       </View>
 
       <View style={styles.banner}>
