@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingTop: 20,
+    paddingBottom: 20,
   },
   topRow: {
     flexDirection: 'row',
