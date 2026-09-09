@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { doc, onSnapshot } from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { SignalDial } from '../components/SignalDial';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { SettingsButton } from '../components/SettingsButton';
 import { colors, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
@@ -56,13 +57,7 @@ export function HomeSoloScreen({ navigation }: Props) {
     <ScreenContainer style={styles.content}>
       <View style={styles.topRow}>
         <Text style={styles.greeting}>안녕, {nickname}</Text>
-        <Pressable
-          onPress={() => navigation.navigate('Settings')}
-          style={styles.settingsBtn}
-          hitSlop={8}
-        >
-          <Text style={styles.settingsIcon}>⚙</Text>
-        </Pressable>
+        <SettingsButton onPress={() => navigation.navigate('Settings')} />
       </View>
 
       <View style={styles.dialWrap}>
@@ -102,16 +97,6 @@ const styles = StyleSheet.create({
     fontFamily: fonts.semiBold,
     fontSize: 20,
     color: colors.ink,
-  },
-  settingsBtn: {
-    width: 36,
-    height: 36,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  settingsIcon: {
-    fontSize: 22,
-    color: colors.muted,
   },
   dialWrap: {
     alignItems: 'center',
