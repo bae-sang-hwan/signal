@@ -1,6 +1,7 @@
-import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text } from 'react-native';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
+import { HapticPressable } from './HapticPressable';
 
 export function PrimaryButton({
   label,
@@ -18,7 +19,7 @@ export function PrimaryButton({
   const isDisabled = disabled || loading;
   const isGhost = variant === 'ghost';
   return (
-    <Pressable
+    <HapticPressable
       onPress={onPress}
       disabled={isDisabled}
       style={({ pressed }) => [
@@ -41,7 +42,7 @@ export function PrimaryButton({
           {label}
         </Text>
       )}
-    </Pressable>
+    </HapticPressable>
   );
 }
 

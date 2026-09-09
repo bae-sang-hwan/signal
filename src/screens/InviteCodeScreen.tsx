@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, Share, StyleSheet, Text } from 'react-native';
+import { ActivityIndicator, Share, StyleSheet, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
   collection,
@@ -16,6 +16,7 @@ import {
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { HapticPressable } from '../components/HapticPressable';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
@@ -104,12 +105,12 @@ export function InviteCodeScreen({ navigation }: Props) {
 
       <PrimaryButton label="공유하기" onPress={handleShare} disabled={!code} />
 
-      <Pressable
+      <HapticPressable
         onPress={() => navigation.navigate('EnterCode')}
         style={styles.linkWrap}
       >
         <Text style={styles.link}>이미 코드를 받으셨나요? 입력하기</Text>
-      </Pressable>
+      </HapticPressable>
     </ScreenContainer>
   );
 }

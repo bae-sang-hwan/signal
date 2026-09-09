@@ -1,6 +1,7 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors, signalColorMap, signalDimMap, SignalColor } from '../theme/colors';
 import { signalOrder } from '../lib/signalCopy';
+import { HapticPressable } from './HapticPressable';
 
 export function SignalDial({
   color,
@@ -42,7 +43,7 @@ export function SignalDial({
 
   return (
     <View style={styles.wrap}>
-      {onPress ? <Pressable onPress={onPress}>{ring}</Pressable> : ring}
+      {onPress ? <HapticPressable onPress={onPress}>{ring}</HapticPressable> : ring}
       {showDots ? (
         <View style={styles.dots}>
           {signalOrder.map((c) => (

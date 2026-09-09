@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signOut } from '@react-native-firebase/auth';
 import { doc, onSnapshot, updateDoc, writeBatch } from '@react-native-firebase/firestore';
+import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { LabeledField } from '../components/LabeledField';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { HapticPressable } from '../components/HapticPressable';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
@@ -89,6 +91,7 @@ export function SettingsScreen({ navigation }: Props) {
   function handleToggleNotifications(next: boolean) {
     const uid = auth.currentUser?.uid;
     if (!uid) return;
+    Haptics.selectionAsync();
     setNotificationsEnabled(next);
     updateDoc(doc(db, 'users', uid), { notificationsEnabled: next }).catch(() => {
       setNotificationsEnabled(!next);
@@ -162,9 +165,9 @@ export function SettingsScreen({ navigation }: Props) {
             error={nicknameError}
           />
           <View style={styles.editorButtons}>
-            <Pressable onPress={() => setEditingNickname(false)} style={styles.cancelBtn}>
+            <HapticPressable onPress={() => setEditingNickname(false)} style={styles.cancelBtn}>
               <Text style={styles.cancelLabel}>취소</Text>
-            </Pressable>
+            </HapticPressable>
             <View style={styles.saveBtnWrap}>
               <PrimaryButton
                 label="저장"
@@ -221,14 +224,14 @@ function Row({
   onPress?: () => void;
 }) {
   return (
-    <Pressable
+    <HapticPressable
       onPress={onPress}
       disabled={disabled}
       style={[styles.row, last && styles.rowLast]}
     >
       <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
       {value ? <Text style={styles.rowValue}>{value}</Text> : null}
-    </Pressable>
+    </HapticPressable>
   );
 }
 

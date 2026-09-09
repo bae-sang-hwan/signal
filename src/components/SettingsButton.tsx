@@ -1,12 +1,13 @@
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '../theme/colors';
+import { HapticPressable } from './HapticPressable';
 
 export function SettingsButton({ onPress }: { onPress: () => void }) {
   return (
-    <Pressable onPress={onPress} style={styles.btn} hitSlop={8}>
+    <HapticPressable onPress={onPress} style={styles.btn} hitSlop={8}>
       <Ionicons name="settings-outline" size={22} color={colors.muted} />
-    </Pressable>
+    </HapticPressable>
   );
 }
 

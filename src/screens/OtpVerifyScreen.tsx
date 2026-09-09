@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signInWithPhoneNumber } from '@react-native-firebase/auth';
 import { doc, getDoc } from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { CodeBoxInput } from '../components/CodeBoxInput';
+import { HapticPressable } from '../components/HapticPressable';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
@@ -106,9 +107,9 @@ export function OtpVerifyScreen({ navigation, route }: Props) {
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
-      <Pressable onPress={handleResend} disabled={resending} style={styles.linkWrap}>
+      <HapticPressable onPress={handleResend} disabled={resending} style={styles.linkWrap}>
         <Text style={styles.link}>{resending ? '재전송 중…' : '코드를 못 받았어요, 다시 보내기'}</Text>
-      </Pressable>
+      </HapticPressable>
     </ScreenContainer>
   );
 }
