@@ -51,6 +51,12 @@
           "imageWidth": 160
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "3cc3a49c-8f7c-462d-94c6-6ac5501eb492"
+      }
+    },
+    "owner": "hyeheee"
   }
 }
