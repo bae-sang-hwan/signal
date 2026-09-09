@@ -3,6 +3,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { RootStackParamList } from './types';
 import { SplashScreen } from '../screens/SplashScreen';
 import { LoginScreen } from '../screens/LoginScreen';
+import { OtpVerifyScreen } from '../screens/OtpVerifyScreen';
 import { NicknameScreen } from '../screens/NicknameScreen';
 import { HomeSoloScreen } from '../screens/HomeSoloScreen';
 import { InviteCodeScreen } from '../screens/InviteCodeScreen';
@@ -21,6 +22,7 @@ export function RootNavigator() {
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="OtpVerify" component={OtpVerifyScreen} />
         <Stack.Screen name="Nickname" component={NicknameScreen} />
         <Stack.Screen name="HomeSolo" component={HomeSoloScreen} />
         <Stack.Screen name="InviteCode" component={InviteCodeScreen} />
