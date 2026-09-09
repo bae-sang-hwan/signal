@@ -27,3 +27,9 @@ export const signalColorMap: Record<SignalColor, string> = {
   amber: colors.amber,
   green: colors.green,
 };
+
+export const signalDimMap: Record<SignalColor, string> = {
+  red: colors.redDim,
+  amber: colors.amberDim,
+  green: colors.greenDim,
+};
