@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { signInWithPhoneNumber } from '@react-native-firebase/auth';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { PrimaryButton } from '../components/PrimaryButton';
+import { LabeledField } from '../components/LabeledField';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth } from '../lib/firebase';
@@ -64,17 +65,15 @@ export function LoginScreen({ navigation }: Props) {
           번호는 파트너 연결에만 쓰이고, 다른 곳에 공개되지 않아요.
         </Text>
 
-        <Text style={styles.fieldLabel}>전화번호</Text>
-        <TextInput
+        <LabeledField
+          label="전화번호"
           value={display}
           onChangeText={handleChangeText}
           placeholder="010-0000-0000"
-          placeholderTextColor={colors.faint}
           keyboardType="number-pad"
-          style={styles.field}
           maxLength={17}
+          error={error}
         />
-        {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <View style={styles.btnWrap}>
           <PrimaryButton
@@ -104,30 +103,6 @@ const styles = StyleSheet.create({
     color: colors.muted,
     lineHeight: 21,
     marginTop: 10,
-  },
-  fieldLabel: {
-    fontFamily: fonts.medium,
-    fontSize: 13,
-    color: colors.muted,
-    marginTop: 32,
-    marginBottom: 8,
-  },
-  field: {
-    height: 54,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    fontFamily: fonts.medium,
-    fontSize: 16,
-    color: colors.ink,
-    backgroundColor: colors.card,
-  },
-  error: {
-    fontFamily: fonts.regular,
-    fontSize: 13,
-    color: colors.red,
-    marginTop: 8,
   },
   btnWrap: {
     marginTop: 28,
