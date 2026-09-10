@@ -158,20 +158,6 @@ export function SettingsScreen({ navigation }: Props) {
     );
   }
 
-  function handleLogout() {
-    Alert.alert('로그아웃 할까요?', undefined, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '로그아웃',
-        style: 'destructive',
-        onPress: async () => {
-          await signOut(auth);
-          navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
-        },
-      },
-    ]);
-  }
-
   if (nickname === null || !uid) {
     return (
       <ScreenContainer style={styles.loading}>
@@ -236,8 +222,6 @@ export function SettingsScreen({ navigation }: Props) {
           onDisconnect={handleDisconnect}
         />
       ))}
-
-      <Row label="로그아웃" onPress={handleLogout} />
 
       <Row
         label="회원 탈퇴"
