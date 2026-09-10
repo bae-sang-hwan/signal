@@ -10,10 +10,10 @@
     "backgroundColor": "#F6F4EF",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.signal.app"
+      "bundleIdentifier": "com.hyeheee.signal"
     },
     "android": {
-      "package": "com.signal.app",
+      "package": "com.hyeheee.signal",
       "googleServicesFile": "./google-services.json",
       "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {

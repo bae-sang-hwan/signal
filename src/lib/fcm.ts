@@ -10,7 +10,7 @@ import {
 } from '@react-native-firebase/messaging';
 import { db } from './firebase';
 
-const ANDROID_PACKAGE = 'com.signal.app';
+const ANDROID_PACKAGE = 'com.hyeheee.signal';
 
 function isEnabledStatus(status: number) {
   return status === AuthorizationStatus.AUTHORIZED || status === AuthorizationStatus.PROVISIONAL;
