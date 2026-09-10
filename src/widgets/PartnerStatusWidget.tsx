@@ -1,4 +1,4 @@
-import { FlexWidget, TextWidget } from 'react-native-android-widget';
+import { FlexWidget, ListWidget, TextWidget } from 'react-native-android-widget';
 import { colors, signalColorMap, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 
@@ -44,7 +44,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
         padding: 8,
       }}
     >
-      <FlexWidget style={{ flexDirection: 'column', width: 'match_parent' }}>
+      <ListWidget style={{ height: 'match_parent', width: 'match_parent' }}>
         {statuses.map((status) => (
           <FlexWidget
             key={status.uid}
@@ -82,7 +82,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
             </FlexWidget>
           </FlexWidget>
         ))}
-      </FlexWidget>
+      </ListWidget>
     </FlexWidget>
   );
 }
