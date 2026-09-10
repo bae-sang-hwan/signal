@@ -14,6 +14,20 @@ const captionByColor: Record<string, string> = {
   green: '괜찮아요',
 };
 
+async function sendPush(token: string | undefined, notification: { title: string; body: string }, data: Record<string, string>) {
+  if (!token) return;
+  try {
+    await messaging.send({
+      token,
+      notification,
+      data,
+      android: { priority: 'high' },
+    });
+  } catch (err) {
+    console.error('FCM send failed', err);
+  }
+}
+
 // 상대가 색상을 바꾸면 연결된 모든 사람에게 FCM을 보낸다 (screen_spec.html 07).
 export const onColorChanged = onDocumentUpdated('users/{uid}', async (event) => {
   const before = event.data?.before.data();
@@ -44,31 +58,48 @@ export const onColorChanged = onDocumentUpdated('users/{uid}', async (event) => 
   );
 
   await Promise.all(
-    partnerSnaps.map(async (snap) => {
-      const token: string | undefined = snap.data()?.fcmToken;
-      if (!token) return;
-      try {
-        await messaging.send({
-          token,
-          notification: {
-            title: nickname,
-            body: caption,
-          },
-          data: {
-            type: 'colorChanged',
-            uid,
-            color,
-            nickname,
-            caption,
-            updatedAt: String(Date.now()),
-          },
-          android: {
-            priority: 'high',
-          },
-        });
-      } catch (err) {
-        console.error('FCM send failed', err);
-      }
-    }),
+    partnerSnaps.map((snap) =>
+      sendPush(
+        snap.data()?.fcmToken,
+        { title: nickname, body: caption },
+        { type: 'colorChanged', uid, color, nickname, caption, updatedAt: String(Date.now()) },
+      ),
+    ),
   );
+});
+
+// 초대 코드로 새로 연결되면 양쪽 모두에게 알린다.
+export const onPairConnected = onDocumentUpdated('pairs/{pairId}', async (event) => {
+  const before = event.data?.before.data();
+  const after = event.data?.after.data();
+  if (!before || !after) return;
+  if (before.status === after.status || after.status !== 'active') return;
+
+  const hostUid: string | undefined = after.hostUid;
+  const guestUid: string | undefined = after.guestUid;
+  if (!hostUid || !guestUid) return;
+
+  const [hostSnap, guestSnap] = await Promise.all([
+    db.doc(`users/${hostUid}`).get(),
+    db.doc(`users/${guestUid}`).get(),
+  ]);
+  const hostData = hostSnap.data();
+  const guestData = guestSnap.data();
+  if (!hostData || !guestData) return;
+
+  const hostNickname: string = hostData.nickname ?? '상대';
+  const guestNickname: string = guestData.nickname ?? '상대';
+
+  await Promise.all([
+    sendPush(
+      hostData.fcmToken,
+      { title: '새로운 연결', body: `${guestNickname}님과 연결되었어요` },
+      { type: 'paired', partnerUid: guestUid },
+    ),
+    sendPush(
+      guestData.fcmToken,
+      { title: '새로운 연결', body: `${hostNickname}님과 연결되었어요` },
+      { type: 'paired', partnerUid: hostUid },
+    ),
+  ]);
 });
