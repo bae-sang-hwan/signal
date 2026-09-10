@@ -13,6 +13,7 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
+import { clearPartnerStatus } from '../lib/partnerStatusCache';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
@@ -114,6 +115,7 @@ export function SettingsScreen({ navigation }: Props) {
             batch.update(doc(db, 'users', uid), { pairId: null });
             batch.update(doc(db, 'users', partnerUid), { pairId: null });
             await batch.commit();
+            await clearPartnerStatus();
             navigation.reset({ index: 0, routes: [{ name: 'HomeSolo' }] });
           } catch {
             Alert.alert('연결 해제에 실패했어요. 잠시 후 다시 시도해주세요.');

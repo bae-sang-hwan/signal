@@ -11,6 +11,7 @@ import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { nextSignalColor, resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
 import { formatRelativeTime } from '../lib/relativeTime';
+import { clearPartnerStatus, savePartnerStatus } from '../lib/partnerStatusCache';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeConnected'>;
 
@@ -37,6 +38,7 @@ export function HomeConnectedScreen({ navigation }: Props) {
       setNickname(data.nickname ?? '');
       if (data.currentColor) setMyColor(data.currentColor as SignalColor);
       if (!data.pairId) {
+        clearPartnerStatus().catch(() => {});
         navigation.reset({ index: 0, routes: [{ name: 'HomeSolo' }] });
         return;
       }
@@ -59,11 +61,22 @@ export function HomeConnectedScreen({ navigation }: Props) {
     return onSnapshot(doc(db, 'users', partnerUid), (snap) => {
       const data = snap.data();
       if (!data) return;
-      setPartnerNickname(data.nickname ?? '');
-      if (data.currentColor) setPartnerColor(data.currentColor as SignalColor);
-      setPartnerCaptions(data.captions as Partial<SignalCaptions> | undefined);
+      const nickname = data.nickname ?? '';
+      const captions = data.captions as Partial<SignalCaptions> | undefined;
+      setPartnerNickname(nickname);
+      setPartnerCaptions(captions);
       const updatedAt = data.colorUpdatedAt as Timestamp | undefined;
       setPartnerUpdatedAt(updatedAt ? updatedAt.toDate() : null);
+
+      if (!data.currentColor) return;
+      const color = data.currentColor as SignalColor;
+      setPartnerColor(color);
+      savePartnerStatus({
+        nickname,
+        color,
+        caption: resolveCaption(captions, color),
+        updatedAt: updatedAt ? updatedAt.toMillis() : Date.now(),
+      }).catch(() => {});
     });
   }, [partnerUid]);
 

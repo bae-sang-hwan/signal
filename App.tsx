@@ -3,7 +3,10 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { savePartnerStatus } from './src/lib/partnerStatusCache';
+import { SignalColor } from './src/theme/colors';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -25,6 +28,19 @@ export default function App() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    return onMessage(getMessaging(), async (remoteMessage) => {
+      const data = remoteMessage.data;
+      if (data?.type !== 'colorChanged') return;
+      await savePartnerStatus({
+        nickname: String(data.nickname ?? ''),
+        color: data.color as SignalColor,
+        caption: String(data.caption ?? ''),
+        updatedAt: Number(data.updatedAt) || Date.now(),
+      });
+    });
+  }, []);
 
   if (!fontsLoaded && !fontError) {
     return null;

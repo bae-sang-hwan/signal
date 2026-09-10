@@ -7,6 +7,7 @@ import { RootStackParamList } from '../navigation/types';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
+import { registerFcmToken } from '../lib/fcm';
 import { BrandMark } from '../components/BrandMark';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
@@ -18,6 +19,8 @@ export function SplashScreen({ navigation }: Props) {
         navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
         return;
       }
+      registerFcmToken(user.uid).catch(() => {});
+
       const snap = await getDoc(doc(db, 'users', user.uid));
       if (!snap.exists()) {
         navigation.reset({ index: 0, routes: [{ name: 'Nickname' }] });

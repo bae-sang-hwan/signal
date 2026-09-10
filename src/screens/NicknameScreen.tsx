@@ -9,6 +9,7 @@ import { LabeledField } from '../components/LabeledField';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
+import { registerFcmToken } from '../lib/fcm';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Nickname'>;
@@ -40,6 +41,7 @@ export function NicknameScreen({ navigation }: Props) {
         pairId: null,
         createdAt: serverTimestamp(),
       });
+      registerFcmToken(uid).catch(() => {});
       navigation.reset({ index: 0, routes: [{ name: 'HomeSolo' }] });
     } catch {
       setError('저장에 실패했어요. 잠시 후 다시 시도해주세요.');

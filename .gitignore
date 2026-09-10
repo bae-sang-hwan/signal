@@ -41,6 +41,9 @@ yarn-error.*
 /ios
 /android
 
+# Cloud Functions build output
+functions/lib/
+
 # local eas build output
 *.apk
 *.aab

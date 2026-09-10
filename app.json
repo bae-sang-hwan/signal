@@ -15,6 +15,7 @@
     "android": {
       "package": "com.signal.app",
       "googleServicesFile": "./google-services.json",
+      "permissions": ["POST_NOTIFICATIONS"],
       "adaptiveIcon": {
         "backgroundColor": "#F6F4EF",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -52,7 +53,28 @@
         }
       ],
       "@react-native-firebase/app",
-      "@react-native-firebase/auth"
+      "@react-native-firebase/auth",
+      [
+        "react-native-android-widget",
+        {
+          "fonts": [
+            "./assets/fonts/Pretendard-Regular.otf",
+            "./assets/fonts/Pretendard-Medium.otf",
+            "./assets/fonts/Pretendard-SemiBold.otf"
+          ],
+          "widgets": [
+            {
+              "name": "PartnerStatus",
+              "label": "파트너 상태",
+              "description": "파트너의 현재 시그널 색상을 보여줘요",
+              "minWidth": "160dp",
+              "minHeight": "80dp",
+              "updatePeriodMillis": 1800000
+            }
+          ]
+        }
+      ],
+      "@react-native-firebase/messaging"
     ],
     "extra": {
       "eas": {
