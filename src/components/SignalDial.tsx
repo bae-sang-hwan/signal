@@ -6,56 +6,68 @@ import { HapticPressable } from './HapticPressable';
 export function SignalDial({
   color,
   size = 160,
-  onPress,
+  onSelectColor,
   showDots = true,
 }: {
   color: SignalColor;
   size?: number;
-  onPress?: () => void;
+  onSelectColor?: (color: SignalColor) => void;
   showDots?: boolean;
 }) {
   const coreSize = size * 0.7;
-  const ring = (
-    <View
-      style={[
-        styles.ring,
-        {
-          width: size,
-          height: size,
-          borderRadius: size / 2,
-          backgroundColor: signalDimMap[color],
-        },
-      ]}
-    >
-      <View
-        style={[
-          styles.core,
-          {
-            width: coreSize,
-            height: coreSize,
-            borderRadius: coreSize / 2,
-            backgroundColor: signalColorMap[color],
-          },
-        ]}
-      />
-    </View>
-  );
+  const dotSize = 40;
 
   return (
     <View style={styles.wrap}>
-      {onPress ? <HapticPressable onPress={onPress}>{ring}</HapticPressable> : ring}
+      <View
+        style={[
+          styles.ring,
+          {
+            width: size,
+            height: size,
+            borderRadius: size / 2,
+            backgroundColor: signalDimMap[color],
+          },
+        ]}
+      >
+        <View
+          style={[
+            styles.core,
+            {
+              width: coreSize,
+              height: coreSize,
+              borderRadius: coreSize / 2,
+              backgroundColor: signalColorMap[color],
+            },
+          ]}
+        />
+      </View>
       {showDots ? (
         <View style={styles.dots}>
-          {signalOrder.map((c) => (
-            <View
-              key={c}
-              style={[
-                styles.dot,
-                { borderColor: signalColorMap[c] },
-                c === color && { backgroundColor: signalColorMap[c] },
-              ]}
-            />
-          ))}
+          {signalOrder.map((c) => {
+            const selected = c === color;
+            const dot = (
+              <View
+                style={[
+                  styles.dot,
+                  {
+                    width: dotSize,
+                    height: dotSize,
+                    borderRadius: dotSize / 2,
+                    borderColor: signalColorMap[c],
+                  },
+                  selected && { backgroundColor: signalColorMap[c] },
+                ]}
+              />
+            );
+            return onSelectColor ? (
+              <HapticPressable key={c} onPress={() => onSelectColor(c)}>
+                {dot}
+              </HapticPressable>
+            ) : (
+              <View key={c}>{dot}</View>
+            );
+          })}
         </View>
       ) : null}
     </View>
@@ -73,14 +85,11 @@ const styles = StyleSheet.create({
   core: {},
   dots: {
     flexDirection: 'row',
-    gap: 10,
-    marginTop: 16,
+    gap: 18,
+    marginTop: 20,
   },
   dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: 2,
+    borderWidth: 3,
     backgroundColor: colors.bg,
   },
 });

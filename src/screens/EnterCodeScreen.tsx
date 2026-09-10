@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { doc, getDoc, serverTimestamp, Timestamp, writeBatch } from '@react-native-firebase/firestore';
+import {
+  arrayUnion,
+  doc,
+  getDoc,
+  serverTimestamp,
+  Timestamp,
+  writeBatch,
+} from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { CodeBoxInput } from '../components/CodeBoxInput';
@@ -50,8 +57,8 @@ export function EnterCodeScreen({ navigation }: Props) {
 
       const batch = writeBatch(db);
       batch.update(pairRef, { guestUid: uid, status: 'active', connectedAt: serverTimestamp() });
-      batch.update(doc(db, 'users', data.hostUid), { pairId: fullCode });
-      batch.update(doc(db, 'users', uid), { pairId: fullCode });
+      batch.update(doc(db, 'users', data.hostUid), { pairIds: arrayUnion(fullCode) });
+      batch.update(doc(db, 'users', uid), { pairIds: arrayUnion(fullCode) });
       await batch.commit();
 
       navigation.reset({ index: 0, routes: [{ name: 'HomeConnected' }] });

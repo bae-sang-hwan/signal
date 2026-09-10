@@ -13,11 +13,6 @@ export const defaultSignalCaptions: SignalCaptions = {
 
 export const signalOrder: SignalColor[] = ['red', 'amber', 'green'];
 
-export function nextSignalColor(current: SignalColor): SignalColor {
-  const idx = signalOrder.indexOf(current);
-  return signalOrder[(idx + 1) % signalOrder.length];
-}
-
 export function resolveCaption(
   captions: Partial<SignalCaptions> | null | undefined,
   color: SignalColor,

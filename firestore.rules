@@ -8,10 +8,10 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isSignedIn();
       allow create: if isSignedIn() && request.auth.uid == uid;
-      // 페어링 확정 시 상대(호스트) 문서의 pairId만 예외적으로 쓸 수 있음.
+      // 페어링 확정/해제 시 상대 문서의 pairIds만 예외적으로 쓸 수 있음.
       allow update: if isSignedIn() && (
         request.auth.uid == uid ||
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pairId'])
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pairIds'])
       );
       allow delete: if isSignedIn() && request.auth.uid == uid;
     }

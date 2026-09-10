@@ -65,10 +65,12 @@
           "widgets": [
             {
               "name": "PartnerStatus",
-              "label": "파트너 상태",
-              "description": "파트너의 현재 시그널 색상을 보여줘요",
+              "label": "연결된 사람 상태",
+              "description": "연결된 사람들의 현재 시그널 색상을 목록으로 보여줘요",
               "minWidth": "160dp",
-              "minHeight": "80dp",
+              "minHeight": "120dp",
+              "resizeMode": "vertical",
+              "maxResizeHeight": "300dp",
               "updatePeriodMillis": 1800000
             }
           ]

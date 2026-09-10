@@ -38,7 +38,7 @@ export function NicknameScreen({ navigation }: Props) {
         nickname: trimmed,
         phoneNumber: auth.currentUser?.phoneNumber ?? null,
         currentColor: 'green',
-        pairId: null,
+        pairIds: [],
         createdAt: serverTimestamp(),
       });
       registerFcmToken(uid).catch(() => {});

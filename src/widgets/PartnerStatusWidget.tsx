@@ -1,17 +1,18 @@
-import { FlexWidget, TextWidget } from 'react-native-android-widget';
+import { FlexWidget, ListWidget, TextWidget } from 'react-native-android-widget';
 import { colors, signalColorMap, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 
 interface PartnerStatusWidgetProps {
-  status: {
+  statuses: {
+    uid: string;
     nickname: string;
     color: SignalColor;
     caption: string;
-  } | null;
+  }[];
 }
 
-export function PartnerStatusWidget({ status }: PartnerStatusWidgetProps) {
-  if (!status) {
+export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
+  if (statuses.length === 0) {
     return (
       <FlexWidget
         style={{
@@ -24,7 +25,7 @@ export function PartnerStatusWidget({ status }: PartnerStatusWidgetProps) {
         }}
       >
         <TextWidget
-          text="연결된 파트너가 없어요"
+          text="연결된 사람이 없어요"
           style={{ fontSize: 13, color: colors.muted, fontFamily: fonts.medium }}
         />
       </FlexWidget>
@@ -38,35 +39,46 @@ export function PartnerStatusWidget({ status }: PartnerStatusWidgetProps) {
         width: 'match_parent',
         backgroundColor: colors.card,
         borderRadius: 20,
-        padding: 16,
-        flexDirection: 'row',
-        alignItems: 'center',
+        padding: 8,
       }}
     >
-      <FlexWidget
-        style={{
-          width: 44,
-          height: 44,
-          borderRadius: 22,
-          backgroundColor: signalColorMap[status.color] as `#${string}`,
-        }}
-      />
-      <FlexWidget
-        style={{
-          marginLeft: 12,
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}
-      >
-        <TextWidget
-          text={status.nickname}
-          style={{ fontSize: 14, color: colors.ink, fontFamily: fonts.semiBold }}
-        />
-        <TextWidget
-          text={status.caption}
-          style={{ fontSize: 13, color: colors.muted, fontFamily: fonts.regular }}
-        />
-      </FlexWidget>
+      <ListWidget style={{ height: 'match_parent', width: 'match_parent' }}>
+        {statuses.map((status) => (
+          <FlexWidget
+            key={status.uid}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              padding: 8,
+            }}
+          >
+            <FlexWidget
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 16,
+                backgroundColor: signalColorMap[status.color] as `#${string}`,
+              }}
+            />
+            <FlexWidget
+              style={{
+                marginLeft: 12,
+                flexDirection: 'column',
+                justifyContent: 'center',
+              }}
+            >
+              <TextWidget
+                text={status.nickname}
+                style={{ fontSize: 14, color: colors.ink, fontFamily: fonts.semiBold }}
+              />
+              <TextWidget
+                text={status.caption}
+                style={{ fontSize: 13, color: colors.muted, fontFamily: fonts.regular }}
+              />
+            </FlexWidget>
+          </FlexWidget>
+        ))}
+      </ListWidget>
     </FlexWidget>
   );
 }

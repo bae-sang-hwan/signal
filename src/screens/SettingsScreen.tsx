@@ -2,7 +2,14 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { deleteUser, signOut } from '@react-native-firebase/auth';
-import { doc, onSnapshot, updateDoc, writeBatch } from '@react-native-firebase/firestore';
+import {
+  arrayRemove,
+  doc,
+  getDoc,
+  onSnapshot,
+  updateDoc,
+  writeBatch,
+} from '@react-native-firebase/firestore';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
@@ -13,28 +20,27 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
-import { clearPartnerStatus } from '../lib/partnerStatusCache';
+import { usePartner } from '../lib/usePartner';
+import { clearAllPartnerStatuses, clearMyStatus, removePartnerStatus } from '../lib/partnerStatusCache';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export function SettingsScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string | null>(null);
-  const [pairId, setPairId] = useState<string | null>(null);
+  const [pairIds, setPairIds] = useState<string[]>([]);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-
-  const [partnerUid, setPartnerUid] = useState<string | null>(null);
-  const [partnerNickname, setPartnerNickname] = useState('');
 
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState('');
   const [savingNickname, setSavingNickname] = useState(false);
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
-  const [disconnecting, setDisconnecting] = useState(false);
+  const [disconnectingPairId, setDisconnectingPairId] = useState<string | null>(null);
   const [deletingAccount, setDeletingAccount] = useState(false);
 
+  const uid = auth.currentUser?.uid;
+
   useEffect(() => {
-    const uid = auth.currentUser?.uid;
     if (!uid) {
       navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
       return;
@@ -43,30 +49,10 @@ export function SettingsScreen({ navigation }: Props) {
       const data = snap.data();
       if (!data) return;
       setNickname(data.nickname ?? '');
-      setPairId((data.pairId as string) ?? null);
+      setPairIds((data.pairIds as string[] | undefined) ?? []);
       setNotificationsEnabled(data.notificationsEnabled ?? true);
     });
-  }, [navigation]);
-
-  useEffect(() => {
-    const uid = auth.currentUser?.uid;
-    if (!uid || !pairId) {
-      setPartnerUid(null);
-      return;
-    }
-    return onSnapshot(doc(db, 'pairs', pairId), (snap) => {
-      const data = snap.data();
-      if (!data) return;
-      setPartnerUid(data.hostUid === uid ? data.guestUid : data.hostUid);
-    });
-  }, [pairId]);
-
-  useEffect(() => {
-    if (!partnerUid) return;
-    return onSnapshot(doc(db, 'users', partnerUid), (snap) => {
-      setPartnerNickname(snap.data()?.nickname ?? '');
-    });
-  }, [partnerUid]);
+  }, [navigation, uid]);
 
   function openNicknameEditor() {
     setNicknameDraft(nickname ?? '');
@@ -75,7 +61,6 @@ export function SettingsScreen({ navigation }: Props) {
   }
 
   async function handleSaveNickname() {
-    const uid = auth.currentUser?.uid;
     const trimmed = nicknameDraft.trim();
     if (!uid || !isValidNickname(trimmed) || savingNickname) return;
     setSavingNickname(true);
@@ -91,7 +76,6 @@ export function SettingsScreen({ navigation }: Props) {
   }
 
   function handleToggleNotifications(next: boolean) {
-    const uid = auth.currentUser?.uid;
     if (!uid) return;
     Haptics.selectionAsync();
     setNotificationsEnabled(next);
@@ -100,28 +84,25 @@ export function SettingsScreen({ navigation }: Props) {
     });
   }
 
-  function handleDisconnect() {
-    if (!pairId || !partnerUid) return;
+  function handleDisconnect(pairId: string, partnerUid: string, partnerNickname: string) {
     Alert.alert('연결을 해제할까요?', `${partnerNickname}님과의 연결이 끊어져요.`, [
       { text: '취소', style: 'cancel' },
       {
         text: '연결 해제',
         style: 'destructive',
         onPress: async () => {
-          const uid = auth.currentUser?.uid;
           if (!uid) return;
-          setDisconnecting(true);
+          setDisconnectingPairId(pairId);
           try {
             const batch = writeBatch(db);
-            batch.update(doc(db, 'users', uid), { pairId: null });
-            batch.update(doc(db, 'users', partnerUid), { pairId: null });
+            batch.update(doc(db, 'users', uid), { pairIds: arrayRemove(pairId) });
+            batch.update(doc(db, 'users', partnerUid), { pairIds: arrayRemove(pairId) });
             await batch.commit();
-            await clearPartnerStatus();
-            navigation.reset({ index: 0, routes: [{ name: 'HomeSolo' }] });
+            await removePartnerStatus(partnerUid);
           } catch {
             Alert.alert('연결 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
           } finally {
-            setDisconnecting(false);
+            setDisconnectingPairId(null);
           }
         },
       },
@@ -143,13 +124,22 @@ export function SettingsScreen({ navigation }: Props) {
             if (!user) return;
             setDeletingAccount(true);
             try {
+              const pairSnaps = await Promise.all(
+                pairIds.map((pairId) => getDoc(doc(db, 'pairs', pairId))),
+              );
               const batch = writeBatch(db);
-              if (pairId && partnerUid) {
-                batch.update(doc(db, 'users', partnerUid), { pairId: null });
-              }
+              pairSnaps.forEach((snap, i) => {
+                const data = snap.data();
+                if (!data) return;
+                const partnerUid = data.hostUid === user.uid ? data.guestUid : data.hostUid;
+                if (partnerUid) {
+                  batch.update(doc(db, 'users', partnerUid), { pairIds: arrayRemove(pairIds[i]) });
+                }
+              });
               batch.delete(doc(db, 'users', user.uid));
               await batch.commit();
-              await clearPartnerStatus();
+              await clearAllPartnerStatuses();
+              await clearMyStatus();
               try {
                 await deleteUser(user);
               } catch {
@@ -181,7 +171,7 @@ export function SettingsScreen({ navigation }: Props) {
     ]);
   }
 
-  if (nickname === null) {
+  if (nickname === null || !uid) {
     return (
       <ScreenContainer style={styles.loading}>
         <ActivityIndicator color={colors.ink} />
@@ -235,15 +225,15 @@ export function SettingsScreen({ navigation }: Props) {
         <Switch value={notificationsEnabled} onValueChange={handleToggleNotifications} />
       </View>
 
-      {pairId ? (
-        <Row
-          label="연결 해제"
-          value={partnerNickname}
-          danger
-          disabled={disconnecting}
-          onPress={handleDisconnect}
+      {pairIds.map((pairId) => (
+        <PartnerRow
+          key={pairId}
+          pairId={pairId}
+          myUid={uid}
+          disconnecting={disconnectingPairId === pairId}
+          onDisconnect={handleDisconnect}
         />
-      ) : null}
+      ))}
 
       <Row label="로그아웃" onPress={handleLogout} />
 
@@ -255,6 +245,30 @@ export function SettingsScreen({ navigation }: Props) {
         last
       />
     </ScreenContainer>
+  );
+}
+
+function PartnerRow({
+  pairId,
+  myUid,
+  disconnecting,
+  onDisconnect,
+}: {
+  pairId: string;
+  myUid: string;
+  disconnecting: boolean;
+  onDisconnect: (pairId: string, partnerUid: string, partnerNickname: string) => void;
+}) {
+  const { partnerUid, nickname } = usePartner(pairId, myUid);
+  if (!partnerUid) return null;
+  return (
+    <Row
+      label="연결 해제"
+      value={nickname}
+      danger
+      disabled={disconnecting}
+      onPress={() => onDisconnect(pairId, partnerUid, nickname)}
+    />
   );
 }
 

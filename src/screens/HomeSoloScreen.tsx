@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { doc, onSnapshot } from '@react-native-firebase/firestore';
+import { doc, onSnapshot, Timestamp } from '@react-native-firebase/firestore';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { SignalDial } from '../components/SignalDial';
@@ -10,7 +10,8 @@ import { SettingsButton } from '../components/SettingsButton';
 import { colors, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-import { nextSignalColor, resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
+import { resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
+import { updateMyStatus } from '../lib/partnerStatusCache';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeSolo'>;
 
@@ -28,19 +29,32 @@ export function HomeSoloScreen({ navigation }: Props) {
     return onSnapshot(doc(db, 'users', uid), (snap) => {
       const data = snap.data();
       if (!data) return;
-      setNickname(data.nickname ?? '');
-      if (data.currentColor) setColor(data.currentColor as SignalColor);
-      setCaptions(data.captions as Partial<SignalCaptions> | undefined);
-      if (data.pairId) {
+      const myNickname = data.nickname ?? '';
+      setNickname(myNickname);
+      const captions = data.captions as Partial<SignalCaptions> | undefined;
+      setCaptions(captions);
+      if (data.currentColor) {
+        const nextColor = data.currentColor as SignalColor;
+        setColor(nextColor);
+        const updatedAt = data.colorUpdatedAt as Timestamp | undefined;
+        updateMyStatus({
+          uid,
+          nickname: myNickname,
+          color: nextColor,
+          caption: resolveCaption(captions, nextColor),
+          updatedAt: updatedAt ? updatedAt.toMillis() : Date.now(),
+        }).catch(() => {});
+      }
+      const pairIds = (data.pairIds as string[] | undefined) ?? [];
+      if (pairIds.length > 0) {
         navigation.reset({ index: 0, routes: [{ name: 'HomeConnected' }] });
       }
     });
   }, [navigation]);
 
-  function handleCyclePress() {
+  function handleSelectColor(next: SignalColor) {
     const uid = auth.currentUser?.uid;
-    if (!uid) return;
-    const next = nextSignalColor(color);
+    if (!uid || next === color) return;
     setColor(next);
     updateMyColor(uid, next).catch(() => {
       setColor(color);
@@ -63,7 +77,7 @@ export function HomeSoloScreen({ navigation }: Props) {
       </View>
 
       <View style={styles.dialWrap}>
-        <SignalDial color={color} onPress={handleCyclePress} />
+        <SignalDial color={color} onSelectColor={handleSelectColor} />
         <Text style={styles.caption}>지금 상태: {resolveCaption(captions, color)}</Text>
       </View>
 

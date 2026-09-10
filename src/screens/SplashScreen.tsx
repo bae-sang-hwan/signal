@@ -27,9 +27,10 @@ export function SplashScreen({ navigation }: Props) {
         return;
       }
       const data = snap.data();
+      const pairIds = (data?.pairIds as string[] | undefined) ?? [];
       navigation.reset({
         index: 0,
-        routes: [{ name: data?.pairId ? 'HomeConnected' : 'HomeSolo' }],
+        routes: [{ name: pairIds.length > 0 ? 'HomeConnected' : 'HomeSolo' }],
       });
     });
     return unsubscribe;
