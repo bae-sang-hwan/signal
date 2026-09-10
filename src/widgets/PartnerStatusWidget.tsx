@@ -15,6 +15,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
   if (statuses.length === 0) {
     return (
       <FlexWidget
+        clickAction="OPEN_APP"
         style={{
           height: 'match_parent',
           width: 'match_parent',
@@ -46,6 +47,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
         {statuses.map((status) => (
           <FlexWidget
             key={status.uid}
+            clickAction="OPEN_APP"
             style={{
               flexDirection: 'row',
               alignItems: 'center',
