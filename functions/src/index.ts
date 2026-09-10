@@ -68,7 +68,8 @@ export const onColorChanged = onDocumentUpdated('users/{uid}', async (event) => 
   );
 });
 
-// 초대 코드로 새로 연결되면 양쪽 모두에게 알린다.
+// 초대 코드로 새로 연결되면 초대한 쪽(host)에게 알린다.
+// 코드를 입력한 쪽(guest)은 이미 화면에서 연결 완료를 보고 있으므로 제외.
 export const onPairConnected = onDocumentUpdated('pairs/{pairId}', async (event) => {
   const before = event.data?.before.data();
   const after = event.data?.after.data();
@@ -87,19 +88,11 @@ export const onPairConnected = onDocumentUpdated('pairs/{pairId}', async (event)
   const guestData = guestSnap.data();
   if (!hostData || !guestData) return;
 
-  const hostNickname: string = hostData.nickname ?? '상대';
   const guestNickname: string = guestData.nickname ?? '상대';
 
-  await Promise.all([
-    sendPush(
-      hostData.fcmToken,
-      { title: '새로운 연결', body: `${guestNickname}님과 연결되었어요` },
-      { type: 'paired', partnerUid: guestUid },
-    ),
-    sendPush(
-      guestData.fcmToken,
-      { title: '새로운 연결', body: `${hostNickname}님과 연결되었어요` },
-      { type: 'paired', partnerUid: hostUid },
-    ),
-  ]);
+  await sendPush(
+    hostData.fcmToken,
+    { title: '새로운 연결', body: `${guestNickname}님과 연결되었어요` },
+    { type: 'paired', partnerUid: guestUid },
+  );
 });
