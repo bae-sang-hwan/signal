@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useFocusEffect } from '@react-navigation/native';
 import { deleteUser, signOut } from '@react-native-firebase/auth';
 import {
   arrayRemove,
@@ -10,7 +11,6 @@ import {
   updateDoc,
   writeBatch,
 } from '@react-native-firebase/firestore';
-import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
 import { LabeledField } from '../components/LabeledField';
@@ -21,6 +21,7 @@ import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 import { usePartner } from '../lib/usePartner';
+import { checkNotificationPermission, openNotificationSettings } from '../lib/fcm';
 import { clearAllPartnerStatuses, clearMyStatus, removePartnerStatus } from '../lib/partnerStatusCache';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
@@ -28,7 +29,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 export function SettingsScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string | null>(null);
   const [pairIds, setPairIds] = useState<string[]>([]);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [notificationsGranted, setNotificationsGranted] = useState<boolean | null>(null);
 
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState('');
@@ -50,9 +51,18 @@ export function SettingsScreen({ navigation }: Props) {
       if (!data) return;
       setNickname(data.nickname ?? '');
       setPairIds((data.pairIds as string[] | undefined) ?? []);
-      setNotificationsEnabled(data.notificationsEnabled ?? true);
     });
   }, [navigation, uid]);
+
+  // 시스템 알림 권한은 앱 안에서 못 바꾸니, 설정 화면에 다시 돌아올 때마다
+  // (시스템 설정에서 바꾸고 왔을 수 있으니) 현재 상태를 다시 읽는다.
+  useFocusEffect(
+    useCallback(() => {
+      checkNotificationPermission()
+        .then(setNotificationsGranted)
+        .catch(() => setNotificationsGranted(null));
+    }, []),
+  );
 
   function openNicknameEditor() {
     setNicknameDraft(nickname ?? '');
@@ -73,15 +83,6 @@ export function SettingsScreen({ navigation }: Props) {
     } finally {
       setSavingNickname(false);
     }
-  }
-
-  function handleToggleNotifications(next: boolean) {
-    if (!uid) return;
-    Haptics.selectionAsync();
-    setNotificationsEnabled(next);
-    updateDoc(doc(db, 'users', uid), { notificationsEnabled: next }).catch(() => {
-      setNotificationsEnabled(!next);
-    });
   }
 
   function handleDisconnect(pairId: string, partnerUid: string, partnerNickname: string) {
@@ -220,10 +221,11 @@ export function SettingsScreen({ navigation }: Props) {
         onPress={() => navigation.navigate('ColorCaptions')}
       />
 
-      <View style={styles.row}>
-        <Text style={styles.rowLabel}>알림</Text>
-        <Switch value={notificationsEnabled} onValueChange={handleToggleNotifications} />
-      </View>
+      <Row
+        label="알림"
+        value={notificationsGranted === null ? '' : notificationsGranted ? '켜짐' : '꺼짐'}
+        onPress={openNotificationSettings}
+      />
 
       {pairIds.map((pairId) => (
         <PartnerRow
