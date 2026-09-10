@@ -13,7 +13,7 @@ service cloud.firestore {
         request.auth.uid == uid ||
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pairId'])
       );
-      allow delete: if false;
+      allow delete: if isSignedIn() && request.auth.uid == uid;
     }
 
     match /pairs/{pairId} {

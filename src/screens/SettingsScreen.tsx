@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { signOut } from '@react-native-firebase/auth';
+import { deleteUser, signOut } from '@react-native-firebase/auth';
 import { doc, onSnapshot, updateDoc, writeBatch } from '@react-native-firebase/firestore';
 import * as Haptics from 'expo-haptics';
 import { RootStackParamList } from '../navigation/types';
@@ -31,6 +31,7 @@ export function SettingsScreen({ navigation }: Props) {
   const [nicknameError, setNicknameError] = useState<string | null>(null);
 
   const [disconnecting, setDisconnecting] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -127,6 +128,45 @@ export function SettingsScreen({ navigation }: Props) {
     ]);
   }
 
+  function handleDeleteAccount() {
+    if (deletingAccount) return;
+    Alert.alert(
+      '회원 탈퇴',
+      '탈퇴하면 닉네임, 시그널 기록 등 모든 데이터가 삭제되고 되돌릴 수 없어요. 정말 탈퇴하시겠어요?',
+      [
+        { text: '취소', style: 'cancel' },
+        {
+          text: '탈퇴',
+          style: 'destructive',
+          onPress: async () => {
+            const user = auth.currentUser;
+            if (!user) return;
+            setDeletingAccount(true);
+            try {
+              const batch = writeBatch(db);
+              if (pairId && partnerUid) {
+                batch.update(doc(db, 'users', partnerUid), { pairId: null });
+              }
+              batch.delete(doc(db, 'users', user.uid));
+              await batch.commit();
+              await clearPartnerStatus();
+              try {
+                await deleteUser(user);
+              } catch {
+                await signOut(auth);
+              }
+              navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
+            } catch {
+              Alert.alert('탈퇴에 실패했어요. 잠시 후 다시 시도해주세요.');
+            } finally {
+              setDeletingAccount(false);
+            }
+          },
+        },
+      ],
+    );
+  }
+
   function handleLogout() {
     Alert.alert('로그아웃 할까요?', undefined, [
       { text: '취소', style: 'cancel' },
@@ -205,7 +245,15 @@ export function SettingsScreen({ navigation }: Props) {
         />
       ) : null}
 
-      <Row label="로그아웃" onPress={handleLogout} last />
+      <Row label="로그아웃" onPress={handleLogout} />
+
+      <Row
+        label="회원 탈퇴"
+        danger
+        disabled={deletingAccount}
+        onPress={handleDeleteAccount}
+        last
+      />
     </ScreenContainer>
   );
 }
