@@ -39,7 +39,7 @@ export function SplashScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <BrandMark size={68} />
-      <Text style={styles.title}>시그널</Text>
+      <Text style={styles.title}>소중한 사람에게 내 상태를 알려주세요</Text>
     </View>
   );
 }
@@ -53,8 +53,10 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   title: {
-    fontFamily: fonts.semiBold,
-    fontSize: 19,
-    color: colors.ink,
+    fontFamily: fonts.medium,
+    fontSize: 15,
+    color: colors.muted,
+    textAlign: 'center',
+    paddingHorizontal: 48,
   },
 });
