@@ -15,6 +15,21 @@ export interface PartnerStatus {
   updatedAt: number;
 }
 
+// HomeConnectedScreen mounts one PartnerCard per connection, and they can all
+// resolve their Firestore snapshots around the same time - without this queue,
+// concurrent upsert/remove calls do a non-atomic read-modify-write on the same
+// AsyncStorage key and silently lose whichever one wrote last based on a stale
+// read (one connection would randomly go missing from the widget).
+let writeQueue = Promise.resolve();
+function enqueue<T>(task: () => Promise<T>): Promise<T> {
+  const result = writeQueue.then(task);
+  writeQueue = result.then(
+    () => undefined,
+    () => undefined,
+  );
+  return result;
+}
+
 async function readPartners(): Promise<PartnerStatus[]> {
   const raw = await AsyncStorage.getItem(PARTNERS_KEY);
   if (!raw) return [];
@@ -50,35 +65,45 @@ export async function loadWidgetStatuses(): Promise<PartnerStatus[]> {
   return mine ? [mine, ...partners] : partners;
 }
 
-export async function updateMyStatus(status: PartnerStatus) {
-  await AsyncStorage.setItem(MY_STATUS_KEY, JSON.stringify(status));
-  await updateWidget();
+export function updateMyStatus(status: PartnerStatus) {
+  return enqueue(async () => {
+    await AsyncStorage.setItem(MY_STATUS_KEY, JSON.stringify(status));
+    await updateWidget();
+  });
 }
 
-export async function clearMyStatus() {
-  await AsyncStorage.removeItem(MY_STATUS_KEY);
-  await updateWidget();
+export function clearMyStatus() {
+  return enqueue(async () => {
+    await AsyncStorage.removeItem(MY_STATUS_KEY);
+    await updateWidget();
+  });
 }
 
-export async function upsertPartnerStatus(status: PartnerStatus) {
-  const list = await readPartners();
-  const idx = list.findIndex((p) => p.uid === status.uid);
-  if (idx >= 0) {
-    list[idx] = status;
-  } else {
-    list.push(status);
-  }
-  await AsyncStorage.setItem(PARTNERS_KEY, JSON.stringify(list));
-  await updateWidget();
+export function upsertPartnerStatus(status: PartnerStatus) {
+  return enqueue(async () => {
+    const list = await readPartners();
+    const idx = list.findIndex((p) => p.uid === status.uid);
+    if (idx >= 0) {
+      list[idx] = status;
+    } else {
+      list.push(status);
+    }
+    await AsyncStorage.setItem(PARTNERS_KEY, JSON.stringify(list));
+    await updateWidget();
+  });
 }
 
-export async function removePartnerStatus(uid: string) {
-  const list = (await readPartners()).filter((p) => p.uid !== uid);
-  await AsyncStorage.setItem(PARTNERS_KEY, JSON.stringify(list));
-  await updateWidget();
+export function removePartnerStatus(uid: string) {
+  return enqueue(async () => {
+    const list = (await readPartners()).filter((p) => p.uid !== uid);
+    await AsyncStorage.setItem(PARTNERS_KEY, JSON.stringify(list));
+    await updateWidget();
+  });
 }
 
-export async function clearAllPartnerStatuses() {
-  await AsyncStorage.removeItem(PARTNERS_KEY);
-  await updateWidget();
+export function clearAllPartnerStatuses() {
+  return enqueue(async () => {
+    await AsyncStorage.removeItem(PARTNERS_KEY);
+    await updateWidget();
+  });
 }

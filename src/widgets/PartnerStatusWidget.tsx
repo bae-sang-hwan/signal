@@ -35,6 +35,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
 
   return (
     <FlexWidget
+      clickAction="OPEN_APP"
       style={{
         height: 'match_parent',
         width: 'match_parent',
