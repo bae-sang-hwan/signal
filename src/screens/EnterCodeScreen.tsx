@@ -15,12 +15,14 @@ import { CodeBoxInput } from '../components/CodeBoxInput';
 import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
+import { useTranslation } from '../i18n';
 
 const CODE_LENGTH = 5;
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EnterCode'>;
 
 export function EnterCodeScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [code, setCode] = useState('');
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -43,14 +45,14 @@ export function EnterCodeScreen({ navigation }: Props) {
       const data = snap.data();
 
       if (!snap.exists() || !data || data.status !== 'pending' || data.hostUid === uid) {
-        setError('코드를 다시 확인해주세요.');
+        setError(t('enterCode.errorInvalid'));
         setCode('');
         return;
       }
 
       const expiresAt = data.expiresAt as Timestamp | undefined;
       if ((expiresAt?.toMillis() ?? 0) < Date.now()) {
-        setError('코드가 만료됐어요, 새로 요청해주세요.');
+        setError(t('enterCode.errorExpired'));
         setCode('');
         return;
       }
@@ -63,7 +65,7 @@ export function EnterCodeScreen({ navigation }: Props) {
 
       navigation.reset({ index: 0, routes: [{ name: 'HomeConnected' }] });
     } catch {
-      setError('연결에 실패했어요. 잠시 후 다시 시도해주세요.');
+      setError(t('enterCode.errorConnect'));
       setCode('');
     } finally {
       setConnecting(false);
@@ -72,8 +74,8 @@ export function EnterCodeScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer style={styles.content}>
-      <Text style={styles.title}>코드를 입력하세요</Text>
-      <Text style={styles.desc}>상대가 보내준 5자리 코드를 넣어주세요.</Text>
+      <Text style={styles.title}>{t('enterCode.title')}</Text>
+      <Text style={styles.desc}>{t('enterCode.desc')}</Text>
 
       <CodeBoxInput
         length={CODE_LENGTH}

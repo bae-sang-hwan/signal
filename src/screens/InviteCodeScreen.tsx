@@ -21,10 +21,12 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { generateInviteCode, INVITE_TTL_MS } from '../lib/inviteCode';
+import { useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'InviteCode'>;
 
 export function InviteCodeScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [code, setCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -72,9 +74,9 @@ export function InviteCodeScreen({ navigation }: Props) {
             return;
           }
         }
-        if (!cancelled) setError('코드 생성에 실패했어요. 다시 시도해주세요.');
+        if (!cancelled) setError(t('inviteCode.errorGenerate'));
       } catch {
-        if (!cancelled) setError('코드 생성에 실패했어요. 다시 시도해주세요.');
+        if (!cancelled) setError(t('inviteCode.errorGenerate'));
       }
     }
 
@@ -87,13 +89,13 @@ export function InviteCodeScreen({ navigation }: Props) {
   function handleShare() {
     if (!code) return;
     Share.share({
-      message: `시그널에서 함께해요! 초대 코드: ${code}\n앱을 열고 이 코드를 입력하면 연결돼요.`,
+      message: t('inviteCode.shareMessage', { app: 'SignalMate', code }),
     });
   }
 
   return (
     <ScreenContainer style={styles.content}>
-      <Text style={styles.title}>이 코드를 상대에게 보내세요</Text>
+      <Text style={styles.title}>{t('inviteCode.title')}</Text>
 
       {code ? (
         <Text style={styles.code}>{code.split('').join(' ')}</Text>
@@ -103,13 +105,13 @@ export function InviteCodeScreen({ navigation }: Props) {
         <ActivityIndicator style={styles.spinner} color={colors.ink} />
       )}
 
-      <PrimaryButton label="공유하기" onPress={handleShare} disabled={!code} />
+      <PrimaryButton label={t('inviteCode.share')} onPress={handleShare} disabled={!code} />
 
       <HapticPressable
         onPress={() => navigation.navigate('EnterCode')}
         style={styles.linkWrap}
       >
-        <Text style={styles.link}>이미 코드를 받으셨나요? 입력하기</Text>
+        <Text style={styles.link}>{t('inviteCode.haveCode')}</Text>
       </HapticPressable>
     </ScreenContainer>
   );

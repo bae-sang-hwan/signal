@@ -7,6 +7,7 @@ import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { upsertPartnerStatus } from './src/lib/partnerStatusCache';
 import { SignalColor } from './src/theme/colors';
+import { LanguageProvider } from './src/i18n';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -49,8 +50,10 @@ export default function App() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <RootNavigator />
-      <StatusBar style="dark" />
+      <LanguageProvider>
+        <RootNavigator />
+        <StatusBar style="dark" />
+      </LanguageProvider>
     </GestureHandlerRootView>
   );
 }

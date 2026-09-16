@@ -9,9 +9,10 @@ interface PartnerStatusWidgetProps {
     color: SignalColor;
     caption: string;
   }[];
+  emptyText: string;
 }
 
-export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
+export function PartnerStatusWidget({ statuses, emptyText }: PartnerStatusWidgetProps) {
   if (statuses.length === 0) {
     return (
       <FlexWidget
@@ -26,7 +27,7 @@ export function PartnerStatusWidget({ statuses }: PartnerStatusWidgetProps) {
         }}
       >
         <TextWidget
-          text="연결된 사람이 없어요"
+          text={emptyText}
           style={{ fontSize: 13, color: colors.muted, fontFamily: fonts.medium }}
         />
       </FlexWidget>

@@ -4,20 +4,16 @@ import { db } from './firebase';
 
 export type SignalCaptions = Record<SignalColor, string>;
 
-// 기본 색상 문구. 08 설정 > 색상 문구 편집에서 사용자별로 덮어쓸 수 있음.
-export const defaultSignalCaptions: SignalCaptions = {
-  red: '방해하지 마세요',
-  amber: '바빠요',
-  green: '괜찮아요',
-};
-
 export const signalOrder: SignalColor[] = ['red', 'amber', 'green'];
 
+// 기본 색상 문구는 설정 > 색상 문구 편집에서 사용자별로 덮어쓸 수 있음.
+// 덮어쓰지 않은 경우 보는 사람의 언어로 기본 문구를 보여준다.
 export function resolveCaption(
   captions: Partial<SignalCaptions> | null | undefined,
   color: SignalColor,
+  t: (key: string) => string,
 ): string {
-  return captions?.[color]?.trim() || defaultSignalCaptions[color];
+  return captions?.[color]?.trim() || t(`signalCaptions.${color}`);
 }
 
 export function updateMyColor(uid: string, color: SignalColor) {

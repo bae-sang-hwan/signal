@@ -3,6 +3,7 @@ import { doc, onSnapshot, Timestamp } from '@react-native-firebase/firestore';
 import { db } from './firebase';
 import { SignalColor } from '../theme/colors';
 import { resolveCaption, SignalCaptions } from './signalCopy';
+import { useTranslation } from '../i18n';
 
 export interface PartnerInfo {
   partnerUid: string | null;
@@ -14,6 +15,7 @@ export interface PartnerInfo {
 
 // pairs/{pairId} 문서에서 상대 uid를 찾고, 그 uid의 users 문서를 구독한다.
 export function usePartner(pairId: string, myUid: string | null): PartnerInfo {
+  const { t } = useTranslation();
   const [partnerUid, setPartnerUid] = useState<string | null>(null);
   const [nickname, setNickname] = useState('');
   const [color, setColor] = useState<SignalColor>('green');
@@ -42,5 +44,5 @@ export function usePartner(pairId: string, myUid: string | null): PartnerInfo {
     });
   }, [partnerUid]);
 
-  return { partnerUid, nickname, color, caption: resolveCaption(captions, color), updatedAt };
+  return { partnerUid, nickname, color, caption: resolveCaption(captions, color, t), updatedAt };
 }

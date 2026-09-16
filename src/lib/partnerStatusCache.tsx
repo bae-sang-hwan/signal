@@ -2,6 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { Platform } from 'react-native';
 import { SignalColor } from '../theme/colors';
+import { getWidgetTranslation } from '../i18n';
 import { PartnerStatusWidget } from '../widgets/PartnerStatusWidget';
 
 const PARTNERS_KEY = 'partnerStatuses';
@@ -50,12 +51,13 @@ async function readMyStatus(): Promise<PartnerStatus | null> {
   }
 }
 
-async function updateWidget() {
+export async function updateWidget() {
   if (Platform.OS !== 'android') return;
   const statuses = await loadWidgetStatuses();
+  const emptyText = await getWidgetTranslation('widget.empty');
   await requestWidgetUpdate({
     widgetName: 'PartnerStatus',
-    renderWidget: () => <PartnerStatusWidget statuses={statuses} />,
+    renderWidget: () => <PartnerStatusWidget statuses={statuses} emptyText={emptyText} />,
   });
 }
 

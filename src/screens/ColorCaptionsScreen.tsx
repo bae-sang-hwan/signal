@@ -16,19 +16,15 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { colors, signalColorMap, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
-import { defaultSignalCaptions, signalOrder } from '../lib/signalCopy';
+import { signalOrder } from '../lib/signalCopy';
+import { useTranslation } from '../i18n';
 
 const CAPTION_MAX_LEN = 20;
-
-const colorName: Record<SignalColor, string> = {
-  red: '빨강',
-  amber: '노랑',
-  green: '초록',
-};
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ColorCaptions'>;
 
 export function ColorCaptionsScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +66,7 @@ export function ColorCaptionsScreen({ navigation }: Props) {
       });
       navigation.goBack();
     } catch {
-      setError('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+      setError(t('colorCaptions.errorSave'));
     } finally {
       setSaving(false);
     }
@@ -90,21 +86,19 @@ export function ColorCaptionsScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScreenContainer style={styles.content}>
-        <Text style={styles.title}>색상 문구 편집</Text>
-        <Text style={styles.desc}>
-          각 색이 무슨 뜻인지 둘만의 표현으로 바꿔보세요. 비워두면 기본 문구가 쓰여요.
-        </Text>
+        <Text style={styles.title}>{t('colorCaptions.title')}</Text>
+        <Text style={styles.desc}>{t('colorCaptions.desc')}</Text>
 
         {signalOrder.map((c) => (
           <View key={c} style={styles.field}>
             <View style={styles.labelRow}>
               <View style={[styles.dot, { backgroundColor: signalColorMap[c] }]} />
-              <Text style={styles.label}>{colorName[c]}</Text>
+              <Text style={styles.label}>{t(`colorCaptions.${c}`)}</Text>
             </View>
             <TextInput
               value={drafts[c]}
-              onChangeText={(t) => setDrafts((d) => ({ ...d, [c]: t }))}
-              placeholder={defaultSignalCaptions[c]}
+              onChangeText={(next) => setDrafts((d) => ({ ...d, [c]: next }))}
+              placeholder={t(`signalCaptions.${c}`)}
               placeholderTextColor={colors.faint}
               maxLength={CAPTION_MAX_LEN}
               style={styles.input}
@@ -115,7 +109,7 @@ export function ColorCaptionsScreen({ navigation }: Props) {
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         <View style={styles.btnWrap}>
-          <PrimaryButton label="저장" onPress={handleSave} loading={saving} />
+          <PrimaryButton label={t('colorCaptions.save')} onPress={handleSave} loading={saving} />
         </View>
       </ScreenContainer>
     </KeyboardAvoidingView>

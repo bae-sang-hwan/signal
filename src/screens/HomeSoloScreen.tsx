@@ -7,18 +7,22 @@ import { ScreenContainer } from '../components/ScreenContainer';
 import { SignalDial } from '../components/SignalDial';
 import { PrimaryButton } from '../components/PrimaryButton';
 import { SettingsButton } from '../components/SettingsButton';
+import { ConfirmModal } from '../components/ConfirmModal';
 import { colors, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { resolveCaption, SignalCaptions, updateMyColor } from '../lib/signalCopy';
 import { updateMyStatus } from '../lib/partnerStatusCache';
+import { useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeSolo'>;
 
 export function HomeSoloScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [nickname, setNickname] = useState<string | null>(null);
   const [color, setColor] = useState<SignalColor>('green');
   const [captions, setCaptions] = useState<Partial<SignalCaptions> | undefined>();
+  const [pendingColor, setPendingColor] = useState<SignalColor | null>(null);
 
   useEffect(() => {
     const uid = auth.currentUser?.uid;
@@ -41,7 +45,7 @@ export function HomeSoloScreen({ navigation }: Props) {
           uid,
           nickname: myNickname,
           color: nextColor,
-          caption: resolveCaption(captions, nextColor),
+          caption: resolveCaption(captions, nextColor, t),
           updatedAt: updatedAt ? updatedAt.toMillis() : Date.now(),
         }).catch(() => {});
       }
@@ -55,6 +59,14 @@ export function HomeSoloScreen({ navigation }: Props) {
   function handleSelectColor(next: SignalColor) {
     const uid = auth.currentUser?.uid;
     if (!uid || next === color) return;
+    setPendingColor(next);
+  }
+
+  function confirmColorChange() {
+    const uid = auth.currentUser?.uid;
+    if (!uid || pendingColor === null) return;
+    const next = pendingColor;
+    setPendingColor(null);
     setColor(next);
     updateMyColor(uid, next).catch(() => {
       setColor(color);
@@ -72,24 +84,33 @@ export function HomeSoloScreen({ navigation }: Props) {
   return (
     <ScreenContainer style={styles.content}>
       <View style={styles.topRow}>
-        <Text style={styles.greeting}>안녕, {nickname}</Text>
+        <Text style={styles.greeting}>{t('homeSolo.greeting', { name: nickname })}</Text>
         <SettingsButton onPress={() => navigation.navigate('Settings')} />
       </View>
 
       <View style={styles.dialWrap}>
         <SignalDial color={color} onSelectColor={handleSelectColor} />
-        <Text style={styles.caption}>지금 상태: {resolveCaption(captions, color)}</Text>
+        <Text style={styles.caption}>
+          {t('homeSolo.status', { caption: resolveCaption(captions, color, t) })}
+        </Text>
       </View>
 
       <View style={styles.banner}>
-        <Text style={styles.bannerTitle}>아직 연결된 사람이 없어요</Text>
-        <Text style={styles.bannerDesc}>상대를 초대하면 서로의 상태가 보여요.</Text>
+        <Text style={styles.bannerTitle}>{t('homeSolo.bannerTitle')}</Text>
+        <Text style={styles.bannerDesc}>{t('homeSolo.bannerDesc')}</Text>
       </View>
 
       <PrimaryButton
-        label="파트너 초대하기"
+        label={t('homeSolo.invite')}
         variant="ghost"
         onPress={() => navigation.navigate('InviteCode')}
+      />
+
+      <ConfirmModal
+        visible={pendingColor !== null}
+        title={t('homeSolo.confirmTitle')}
+        onCancel={() => setPendingColor(null)}
+        onConfirm={confirmColorChange}
       />
     </ScreenContainer>
   );

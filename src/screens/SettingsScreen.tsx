@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, Alert, Linking, StyleSheet, Switch, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { deleteUser, signOut } from '@react-native-firebase/auth';
@@ -23,10 +23,13 @@ import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 import { usePartner } from '../lib/usePartner';
 import { checkNotificationPermission, openNotificationSettings } from '../lib/fcm';
 import { clearAllPartnerStatuses, clearMyStatus, removePartnerStatus } from '../lib/partnerStatusCache';
+import { useTranslation } from '../i18n';
+import { CONTACT_EMAIL } from '../lib/contact';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
 export function SettingsScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [nickname, setNickname] = useState<string | null>(null);
   const [pairIds, setPairIds] = useState<string[]>([]);
   const [notificationsGranted, setNotificationsGranted] = useState<boolean | null>(null);
@@ -64,6 +67,10 @@ export function SettingsScreen({ navigation }: Props) {
     }, []),
   );
 
+  function handleContactUs() {
+    Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('settings.contactSubject'))}`);
+  }
+
   function openNicknameEditor() {
     setNicknameDraft(nickname ?? '');
     setNicknameError(null);
@@ -79,46 +86,50 @@ export function SettingsScreen({ navigation }: Props) {
       await updateDoc(doc(db, 'users', uid), { nickname: trimmed });
       setEditingNickname(false);
     } catch {
-      setNicknameError('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+      setNicknameError(t('settings.nicknameError'));
     } finally {
       setSavingNickname(false);
     }
   }
 
   function handleDisconnect(pairId: string, partnerUid: string, partnerNickname: string) {
-    Alert.alert('연결을 해제할까요?', `${partnerNickname}님과의 연결이 끊어져요.`, [
-      { text: '취소', style: 'cancel' },
-      {
-        text: '연결 해제',
-        style: 'destructive',
-        onPress: async () => {
-          if (!uid) return;
-          setDisconnectingPairId(pairId);
-          try {
-            const batch = writeBatch(db);
-            batch.update(doc(db, 'users', uid), { pairIds: arrayRemove(pairId) });
-            batch.update(doc(db, 'users', partnerUid), { pairIds: arrayRemove(pairId) });
-            await batch.commit();
-            await removePartnerStatus(partnerUid);
-          } catch {
-            Alert.alert('연결 해제에 실패했어요. 잠시 후 다시 시도해주세요.');
-          } finally {
-            setDisconnectingPairId(null);
-          }
+    Alert.alert(
+      t('settings.disconnectConfirmTitle'),
+      t('settings.disconnectConfirmMessage', { name: partnerNickname }),
+      [
+        { text: t('settings.cancel'), style: 'cancel' },
+        {
+          text: t('settings.disconnectConfirmButton'),
+          style: 'destructive',
+          onPress: async () => {
+            if (!uid) return;
+            setDisconnectingPairId(pairId);
+            try {
+              const batch = writeBatch(db);
+              batch.update(doc(db, 'users', uid), { pairIds: arrayRemove(pairId) });
+              batch.update(doc(db, 'users', partnerUid), { pairIds: arrayRemove(pairId) });
+              await batch.commit();
+              await removePartnerStatus(partnerUid);
+            } catch {
+              Alert.alert(t('settings.disconnectError'));
+            } finally {
+              setDisconnectingPairId(null);
+            }
+          },
         },
-      },
-    ]);
+      ],
+    );
   }
 
   function handleDeleteAccount() {
     if (deletingAccount) return;
     Alert.alert(
-      '회원 탈퇴',
-      '탈퇴하면 닉네임, 시그널 기록 등 모든 데이터가 삭제되고 되돌릴 수 없어요. 정말 탈퇴하시겠어요?',
+      t('settings.deleteConfirmTitle'),
+      t('settings.deleteConfirmMessage', { app: 'SignalMate' }),
       [
-        { text: '취소', style: 'cancel' },
+        { text: t('settings.cancel'), style: 'cancel' },
         {
-          text: '탈퇴',
+          text: t('settings.deleteConfirmButton'),
           style: 'destructive',
           onPress: async () => {
             const user = auth.currentUser;
@@ -148,7 +159,7 @@ export function SettingsScreen({ navigation }: Props) {
               }
               navigation.reset({ index: 0, routes: [{ name: 'Login' }] });
             } catch {
-              Alert.alert('탈퇴에 실패했어요. 잠시 후 다시 시도해주세요.');
+              Alert.alert(t('settings.deleteError'));
             } finally {
               setDeletingAccount(false);
             }
@@ -168,16 +179,16 @@ export function SettingsScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer style={styles.content}>
-      <Text style={styles.title}>설정</Text>
+      <Text style={styles.title}>{t('settings.title')}</Text>
 
       {editingNickname ? (
         <View style={styles.editorWrap}>
           <LabeledField
-            label="닉네임"
+            label={t('settings.nicknameChange')}
             value={nicknameDraft}
-            onChangeText={(t) => {
+            onChangeText={(next) => {
               setNicknameError(null);
-              setNicknameDraft(t);
+              setNicknameDraft(next);
             }}
             maxLength={NICKNAME_MAX_LEN}
             autoFocus
@@ -185,11 +196,11 @@ export function SettingsScreen({ navigation }: Props) {
           />
           <View style={styles.editorButtons}>
             <HapticPressable onPress={() => setEditingNickname(false)} style={styles.cancelBtn}>
-              <Text style={styles.cancelLabel}>취소</Text>
+              <Text style={styles.cancelLabel}>{t('settings.cancel')}</Text>
             </HapticPressable>
             <View style={styles.saveBtnWrap}>
               <PrimaryButton
-                label="저장"
+                label={t('settings.save')}
                 onPress={handleSaveNickname}
                 disabled={!isValidNickname(nicknameDraft.trim())}
                 loading={savingNickname}
@@ -198,19 +209,32 @@ export function SettingsScreen({ navigation }: Props) {
           </View>
         </View>
       ) : (
-        <Row label="닉네임 변경" value={nickname} onPress={openNicknameEditor} />
+        <Row label={t('settings.nicknameChange')} value={nickname} onPress={openNicknameEditor} />
       )}
 
       <Row
-        label="색상 문구 편집"
+        label={t('settings.colorCaptions')}
         value="›"
         onPress={() => navigation.navigate('ColorCaptions')}
       />
 
       <Row
-        label="알림"
-        value={notificationsGranted === null ? '' : notificationsGranted ? '켜짐' : '꺼짐'}
+        label={t('settings.notifications')}
         onPress={openNotificationSettings}
+        right={
+          <Switch
+            value={notificationsGranted ?? false}
+            onValueChange={openNotificationSettings}
+            trackColor={{ false: colors.border, true: colors.ink }}
+            thumbColor={colors.card}
+          />
+        }
+      />
+
+      <Row
+        label={t('settings.language')}
+        value="›"
+        onPress={() => navigation.navigate('Language')}
       />
 
       {pairIds.map((pairId) => (
@@ -223,8 +247,12 @@ export function SettingsScreen({ navigation }: Props) {
         />
       ))}
 
+      <Row label={t('settings.appInfo')} value="›" onPress={() => navigation.navigate('AppInfo')} />
+
+      <Row label={t('settings.contactUs')} value="›" onPress={handleContactUs} />
+
       <Row
-        label="회원 탈퇴"
+        label={t('settings.deleteAccount')}
         danger
         disabled={deletingAccount}
         onPress={handleDeleteAccount}
@@ -245,11 +273,12 @@ function PartnerRow({
   disconnecting: boolean;
   onDisconnect: (pairId: string, partnerUid: string, partnerNickname: string) => void;
 }) {
+  const { t } = useTranslation();
   const { partnerUid, nickname } = usePartner(pairId, myUid);
   if (!partnerUid) return null;
   return (
     <Row
-      label="연결 해제"
+      label={t('settings.disconnect')}
       value={nickname}
       danger
       disabled={disconnecting}
@@ -261,6 +290,7 @@ function PartnerRow({
 function Row({
   label,
   value,
+  right,
   danger,
   disabled,
   last,
@@ -268,6 +298,7 @@ function Row({
 }: {
   label: string;
   value?: string;
+  right?: ReactNode;
   danger?: boolean;
   disabled?: boolean;
   last?: boolean;
@@ -280,7 +311,7 @@ function Row({
       style={[styles.row, last && styles.rowLast]}
     >
       <Text style={[styles.rowLabel, danger && styles.rowLabelDanger]}>{label}</Text>
-      {value ? <Text style={styles.rowValue}>{value}</Text> : null}
+      {right ?? (value ? <Text style={styles.rowValue}>{value}</Text> : null)}
     </HapticPressable>
   );
 }

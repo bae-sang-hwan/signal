@@ -11,10 +11,12 @@ import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { registerFcmToken } from '../lib/fcm';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
+import { useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Nickname'>;
 
 export function NicknameScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   const [nickname, setNickname] = useState('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export function NicknameScreen({ navigation }: Props) {
       registerFcmToken(uid).catch(() => {});
       navigation.reset({ index: 0, routes: [{ name: 'HomeSolo' }] });
     } catch {
-      setError('저장에 실패했어요. 잠시 후 다시 시도해주세요.');
+      setError(t('nickname.errorSave'));
     } finally {
       setSaving(false);
     }
@@ -56,19 +58,17 @@ export function NicknameScreen({ navigation }: Props) {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScreenContainer style={styles.content}>
-        <Text style={styles.title}>이름을 알려주세요</Text>
-        <Text style={styles.desc}>
-          파트너 화면에 표시될 이름이에요. 나중에 바꿀 수 있어요.
-        </Text>
+        <Text style={styles.title}>{t('nickname.title')}</Text>
+        <Text style={styles.desc}>{t('nickname.desc')}</Text>
 
         <LabeledField
-          label="닉네임"
+          label={t('nickname.label')}
           value={nickname}
-          onChangeText={(t) => {
+          onChangeText={(next) => {
             setError(null);
-            setNickname(t);
+            setNickname(next);
           }}
-          placeholder="이름을 입력해주세요"
+          placeholder={t('nickname.placeholder')}
           maxLength={NICKNAME_MAX_LEN}
           autoFocus
           error={error}
@@ -76,7 +76,7 @@ export function NicknameScreen({ navigation }: Props) {
 
         <View style={styles.btnWrap}>
           <PrimaryButton
-            label="다음"
+            label={t('nickname.next')}
             onPress={handleSubmit}
             disabled={!isValid}
             loading={saving}

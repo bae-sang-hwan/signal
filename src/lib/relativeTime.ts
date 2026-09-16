@@ -1,11 +1,13 @@
-export function formatRelativeTime(date: Date | null): string {
-  if (!date) return '방금 전';
+type Translate = (key: string, params?: Record<string, string | number>) => string;
+
+export function formatRelativeTime(date: Date | null, t: Translate): string {
+  if (!date) return t('relativeTime.justNow');
   const diffSec = Math.max(0, Math.floor((Date.now() - date.getTime()) / 1000));
-  if (diffSec < 60) return '방금 전';
+  if (diffSec < 60) return t('relativeTime.justNow');
   const diffMin = Math.floor(diffSec / 60);
-  if (diffMin < 60) return `${diffMin}분 전`;
+  if (diffMin < 60) return t('relativeTime.minutesAgo', { n: diffMin });
   const diffHour = Math.floor(diffMin / 60);
-  if (diffHour < 24) return `${diffHour}시간 전`;
+  if (diffHour < 24) return t('relativeTime.hoursAgo', { n: diffHour });
   const diffDay = Math.floor(diffHour / 24);
-  return `${diffDay}일 전`;
+  return t('relativeTime.daysAgo', { n: diffDay });
 }

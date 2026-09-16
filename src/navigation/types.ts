@@ -9,4 +9,7 @@ export type RootStackParamList = {
   HomeConnected: undefined;
   Settings: undefined;
   ColorCaptions: undefined;
+  AppInfo: undefined;
+  PrivacyPolicy: undefined;
+  Language: undefined;
 };

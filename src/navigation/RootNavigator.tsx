@@ -11,6 +11,9 @@ import { EnterCodeScreen } from '../screens/EnterCodeScreen';
 import { HomeConnectedScreen } from '../screens/HomeConnectedScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { ColorCaptionsScreen } from '../screens/ColorCaptionsScreen';
+import { AppInfoScreen } from '../screens/AppInfoScreen';
+import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
+import { LanguageScreen } from '../screens/LanguageScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -31,6 +34,9 @@ export function RootNavigator() {
         <Stack.Screen name="HomeConnected" component={HomeConnectedScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="ColorCaptions" component={ColorCaptionsScreen} />
+        <Stack.Screen name="AppInfo" component={AppInfoScreen} />
+        <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
+        <Stack.Screen name="Language" component={LanguageScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

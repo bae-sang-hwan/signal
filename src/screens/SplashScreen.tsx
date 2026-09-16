@@ -9,10 +9,12 @@ import { fonts } from '../theme/fonts';
 import { auth, db } from '../lib/firebase';
 import { registerFcmToken } from '../lib/fcm';
 import { BrandMark } from '../components/BrandMark';
+import { useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
 export function SplashScreen({ navigation }: Props) {
+  const { t } = useTranslation();
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (!user) {
@@ -39,7 +41,7 @@ export function SplashScreen({ navigation }: Props) {
   return (
     <View style={styles.container}>
       <BrandMark size={68} />
-      <Text style={styles.title}>소중한 사람에게 내 상태를 알려주세요</Text>
+      <Text style={styles.title}>{t('splash.tagline')}</Text>
     </View>
   );
 }
