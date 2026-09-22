@@ -122,6 +122,8 @@ export const en: Translations = {
   widgetSettings: {
     title: 'Widget background opacity',
     desc: 'Adjust how transparent the home screen widget background is.',
+    nicknameColor: 'Nickname text color',
+    captionColor: 'Status text color',
   },
   signalCaptions: {
     red: "Don't disturb",

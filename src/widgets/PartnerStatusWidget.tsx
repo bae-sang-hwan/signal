@@ -11,9 +11,17 @@ interface PartnerStatusWidgetProps {
   }[];
   emptyText: string;
   opacity?: number;
+  nicknameColor?: `#${string}`;
+  captionColor?: `#${string}`;
 }
 
-export function PartnerStatusWidget({ statuses, emptyText, opacity = 1 }: PartnerStatusWidgetProps) {
+export function PartnerStatusWidget({
+  statuses,
+  emptyText,
+  opacity = 1,
+  nicknameColor = colors.ink,
+  captionColor = colors.muted,
+}: PartnerStatusWidgetProps) {
   const backgroundColor = hexToRgba(colors.card, opacity);
 
   if (statuses.length === 0) {
@@ -78,11 +86,11 @@ export function PartnerStatusWidget({ statuses, emptyText, opacity = 1 }: Partne
             >
               <TextWidget
                 text={status.nickname}
-                style={{ fontSize: 14, color: colors.ink, fontFamily: fonts.semiBold }}
+                style={{ fontSize: 14, color: nicknameColor, fontFamily: fonts.semiBold }}
               />
               <TextWidget
                 text={status.caption}
-                style={{ fontSize: 13, color: colors.muted, fontFamily: fonts.regular }}
+                style={{ fontSize: 13, color: captionColor, fontFamily: fonts.regular }}
               />
             </FlexWidget>
           </FlexWidget>

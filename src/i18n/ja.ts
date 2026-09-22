@@ -121,6 +121,8 @@ export const ja: Translations = {
   widgetSettings: {
     title: 'ウィジェットの背景の透明度',
     desc: 'ホーム画面ウィジェットの背景の透明度を調整します。',
+    nicknameColor: 'ニックネームの文字色',
+    captionColor: 'ステータスの文字色',
   },
   signalCaptions: {
     red: '邪魔しないでください',

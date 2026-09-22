@@ -1,16 +1,20 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { requestWidgetUpdate } from 'react-native-android-widget';
 import { Platform } from 'react-native';
-import { SignalColor } from '../theme/colors';
+import { colors, SignalColor } from '../theme/colors';
 import { getWidgetTranslation } from '../i18n';
 import { PartnerStatusWidget } from '../widgets/PartnerStatusWidget';
 
 const PARTNERS_KEY = 'partnerStatuses';
 const MY_STATUS_KEY = 'myStatus';
 const WIDGET_OPACITY_KEY = 'widgetOpacity';
+const WIDGET_NICKNAME_COLOR_KEY = 'widgetNicknameColor';
+const WIDGET_CAPTION_COLOR_KEY = 'widgetCaptionColor';
 const CACHE_CLEARED_ONCE_KEY = 'localCacheClearedOnce';
 
 export const DEFAULT_WIDGET_OPACITY = 1;
+export const DEFAULT_WIDGET_NICKNAME_COLOR = colors.ink;
+export const DEFAULT_WIDGET_CAPTION_COLOR = colors.muted;
 
 export interface PartnerStatus {
   uid: string;
@@ -66,17 +70,45 @@ export async function setWidgetOpacity(opacity: number) {
   await updateWidget();
 }
 
+export async function getWidgetNicknameColor(): Promise<string> {
+  const raw = await AsyncStorage.getItem(WIDGET_NICKNAME_COLOR_KEY);
+  return raw || DEFAULT_WIDGET_NICKNAME_COLOR;
+}
+
+export async function setWidgetNicknameColor(color: string) {
+  await AsyncStorage.setItem(WIDGET_NICKNAME_COLOR_KEY, color);
+  await updateWidget();
+}
+
+export async function getWidgetCaptionColor(): Promise<string> {
+  const raw = await AsyncStorage.getItem(WIDGET_CAPTION_COLOR_KEY);
+  return raw || DEFAULT_WIDGET_CAPTION_COLOR;
+}
+
+export async function setWidgetCaptionColor(color: string) {
+  await AsyncStorage.setItem(WIDGET_CAPTION_COLOR_KEY, color);
+  await updateWidget();
+}
+
 export async function updateWidget() {
   if (Platform.OS !== 'android') return;
-  const [statuses, opacity, emptyText] = await Promise.all([
+  const [statuses, opacity, nicknameColor, captionColor, emptyText] = await Promise.all([
     loadWidgetStatuses(),
     getWidgetOpacity(),
+    getWidgetNicknameColor(),
+    getWidgetCaptionColor(),
     getWidgetTranslation('widget.empty'),
   ]);
   await requestWidgetUpdate({
     widgetName: 'PartnerStatus',
     renderWidget: () => (
-      <PartnerStatusWidget statuses={statuses} emptyText={emptyText} opacity={opacity} />
+      <PartnerStatusWidget
+        statuses={statuses}
+        emptyText={emptyText}
+        opacity={opacity}
+        nicknameColor={nicknameColor as `#${string}`}
+        captionColor={captionColor as `#${string}`}
+      />
     ),
   });
 }
@@ -134,7 +166,13 @@ export function clearAllPartnerStatuses() {
 // 완전히 초기화할 때 쓴다 (예: 서버 데이터를 초기화한 뒤 기기 쪽 잔여 캐시 정리).
 export function clearLocalCache() {
   return enqueue(async () => {
-    await AsyncStorage.multiRemove([PARTNERS_KEY, MY_STATUS_KEY, WIDGET_OPACITY_KEY]);
+    await AsyncStorage.multiRemove([
+      PARTNERS_KEY,
+      MY_STATUS_KEY,
+      WIDGET_OPACITY_KEY,
+      WIDGET_NICKNAME_COLOR_KEY,
+      WIDGET_CAPTION_COLOR_KEY,
+    ]);
     await updateWidget();
   });
 }

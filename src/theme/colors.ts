@@ -34,6 +34,15 @@ export const signalDimMap: Record<SignalColor, string> = {
   green: colors.greenDim,
 };
 
+export const widgetTextColorOptions = [
+  colors.ink,
+  colors.muted,
+  '#FFFFFF',
+  colors.red,
+  colors.amber,
+  colors.green,
+] as const;
+
 export function hexToRgba(hex: string, alpha: number): `rgba(${number}, ${number}, ${number}, ${number})` {
   const r = parseInt(hex.slice(1, 3), 16);
   const g = parseInt(hex.slice(3, 5), 16);

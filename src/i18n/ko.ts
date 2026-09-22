@@ -119,6 +119,8 @@ export const ko = {
   widgetSettings: {
     title: '위젯 배경 투명도',
     desc: '홈 화면 위젯의 배경 투명도를 조절해요.',
+    nicknameColor: '닉네임 글씨 색상',
+    captionColor: '내용 글씨 색상',
   },
   signalCaptions: {
     red: '방해하지 마세요',
