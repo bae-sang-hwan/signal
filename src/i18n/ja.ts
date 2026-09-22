@@ -48,7 +48,7 @@ export const ja: Translations = {
     status: '今の状態: {{caption}}',
     bannerTitle: 'まだ誰ともつながっていません',
     bannerDesc: '相手を招待すると、お互いの状態が見えるようになります。',
-    invite: 'パートナーを招待する',
+    invite: 'パートナーとつながる',
     confirmTitle: "'{{caption}}'の状態に変更しますか？",
   },
   homeConnected: {
@@ -82,7 +82,7 @@ export const ja: Translations = {
     notifications: '通知',
     appInfo: 'アプリ情報',
     language: '言語',
-    widgetOpacity: 'ウィジェットの背景の透明度',
+    widgetOpacity: 'ウィジェット設定',
     contactUs: 'お問い合わせ',
     contactSubject: 'SignalMateに関するお問い合わせ',
     disconnect: '連携を解除',
@@ -119,10 +119,13 @@ export const ja: Translations = {
     japanese: '日本語',
   },
   widgetSettings: {
-    title: 'ウィジェットの背景の透明度',
-    desc: 'ホーム画面ウィジェットの背景の透明度を調整します。',
+    title: 'ウィジェット設定',
+    desc: 'ホーム画面ウィジェットの背景の透明度と文字色を調整します。',
+    opacityLabel: 'ウィジェットの透明度',
     nicknameColor: 'ニックネームの文字色',
     captionColor: 'ステータスの文字色',
+    previewNickname: 'ニックネーム',
+    previewCaption: 'ステータス',
   },
   signalCaptions: {
     red: '邪魔しないでください',

@@ -22,13 +22,7 @@ import { auth, db } from '../lib/firebase';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 import { usePartner } from '../lib/usePartner';
 import { checkNotificationPermission, openNotificationSettings } from '../lib/fcm';
-import {
-  clearAllPartnerStatuses,
-  clearMyStatus,
-  DEFAULT_WIDGET_OPACITY,
-  getWidgetOpacity,
-  removePartnerStatus,
-} from '../lib/partnerStatusCache';
+import { clearAllPartnerStatuses, clearMyStatus, removePartnerStatus } from '../lib/partnerStatusCache';
 import { AppLanguage, useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
@@ -44,7 +38,6 @@ export function SettingsScreen({ navigation }: Props) {
   const [nickname, setNickname] = useState<string | null>(null);
   const [pairIds, setPairIds] = useState<string[]>([]);
   const [notificationsGranted, setNotificationsGranted] = useState<boolean | null>(null);
-  const [widgetOpacity, setWidgetOpacityState] = useState(DEFAULT_WIDGET_OPACITY);
 
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState('');
@@ -76,15 +69,6 @@ export function SettingsScreen({ navigation }: Props) {
       checkNotificationPermission()
         .then(setNotificationsGranted)
         .catch(() => setNotificationsGranted(null));
-    }, []),
-  );
-
-  // 위젯 설정 화면에서 바꾸고 돌아올 수 있으니, 설정 화면에 다시 돌아올 때마다 다시 읽는다.
-  useFocusEffect(
-    useCallback(() => {
-      getWidgetOpacity()
-        .then(setWidgetOpacityState)
-        .catch(() => {});
     }, []),
   );
 
@@ -256,7 +240,7 @@ export function SettingsScreen({ navigation }: Props) {
 
       <Row
         label={t('settings.widgetOpacity')}
-        value={`${Math.round(widgetOpacity * 100)}%`}
+        value="›"
         onPress={() => navigation.navigate('WidgetSettings')}
       />
 

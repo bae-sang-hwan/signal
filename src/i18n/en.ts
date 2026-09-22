@@ -48,7 +48,7 @@ export const en: Translations = {
     status: 'My status: {{caption}}',
     bannerTitle: 'No one connected yet',
     bannerDesc: "Invite someone to see each other's status.",
-    invite: 'Invite a partner',
+    invite: 'Connect with a partner',
     confirmTitle: "Change your status to '{{caption}}'?",
   },
   homeConnected: {
@@ -83,7 +83,7 @@ export const en: Translations = {
     notifications: 'Notifications',
     appInfo: 'About',
     language: 'Language',
-    widgetOpacity: 'Widget background opacity',
+    widgetOpacity: 'Widget settings',
     contactUs: 'Contact us',
     contactSubject: 'SignalMate inquiry',
     disconnect: 'Disconnect',
@@ -120,10 +120,13 @@ export const en: Translations = {
     japanese: '日本語',
   },
   widgetSettings: {
-    title: 'Widget background opacity',
-    desc: 'Adjust how transparent the home screen widget background is.',
+    title: 'Widget settings',
+    desc: "Adjust the home screen widget's background opacity and text colors.",
+    opacityLabel: 'Widget opacity',
     nicknameColor: 'Nickname text color',
     captionColor: 'Status text color',
+    previewNickname: 'Nickname',
+    previewCaption: 'Status',
   },
   signalCaptions: {
     red: "Don't disturb",
