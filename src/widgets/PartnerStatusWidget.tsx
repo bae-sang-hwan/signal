@@ -57,7 +57,8 @@ export function PartnerStatusWidget({ statuses, emptyText, opacity = 1 }: Partne
               flexDirection: 'row',
               alignItems: 'center',
               width: 'match_parent',
-              padding: 8,
+              paddingHorizontal: 8,
+              paddingVertical: 5,
             }}
           >
             <FlexWidget
