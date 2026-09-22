@@ -49,14 +49,14 @@ export const en: Translations = {
     bannerTitle: 'No one connected yet',
     bannerDesc: "Invite someone to see each other's status.",
     invite: 'Invite a partner',
-    confirmTitle: 'Change your status?',
+    confirmTitle: "Change your status to '{{caption}}'?",
   },
   homeConnected: {
     greeting: 'Hi, {{name}}',
     myStatusLabel: 'My status',
     status: 'My status: {{caption}}',
     inviteMore: 'Invite more people',
-    confirmTitle: 'Change your status?',
+    confirmTitle: "Change your status to '{{caption}}'?",
     confirmSubtitle: 'A push notification will be sent to your connections.',
   },
   inviteCode: {
@@ -83,6 +83,7 @@ export const en: Translations = {
     notifications: 'Notifications',
     appInfo: 'About',
     language: 'Language',
+    widgetOpacity: 'Widget background opacity',
     contactUs: 'Contact us',
     contactSubject: 'SignalMate inquiry',
     disconnect: 'Disconnect',
@@ -117,6 +118,10 @@ export const en: Translations = {
     korean: '한국어',
     english: 'English',
     japanese: '日本語',
+  },
+  widgetSettings: {
+    title: 'Widget background opacity',
+    desc: 'Adjust how transparent the home screen widget background is.',
   },
   signalCaptions: {
     red: "Don't disturb",

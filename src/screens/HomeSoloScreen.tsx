@@ -108,7 +108,9 @@ export function HomeSoloScreen({ navigation }: Props) {
 
       <ConfirmModal
         visible={pendingColor !== null}
-        title={t('homeSolo.confirmTitle')}
+        title={t('homeSolo.confirmTitle', {
+          caption: pendingColor ? resolveCaption(captions, pendingColor, t) : '',
+        })}
         onCancel={() => setPendingColor(null)}
         onConfirm={confirmColorChange}
       />

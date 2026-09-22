@@ -1,5 +1,5 @@
 import { FlexWidget, ListWidget, TextWidget } from 'react-native-android-widget';
-import { colors, signalColorMap, SignalColor } from '../theme/colors';
+import { colors, hexToRgba, signalColorMap, SignalColor } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 
 interface PartnerStatusWidgetProps {
@@ -10,9 +10,12 @@ interface PartnerStatusWidgetProps {
     caption: string;
   }[];
   emptyText: string;
+  opacity?: number;
 }
 
-export function PartnerStatusWidget({ statuses, emptyText }: PartnerStatusWidgetProps) {
+export function PartnerStatusWidget({ statuses, emptyText, opacity = 1 }: PartnerStatusWidgetProps) {
+  const backgroundColor = hexToRgba(colors.card, opacity);
+
   if (statuses.length === 0) {
     return (
       <FlexWidget
@@ -20,7 +23,7 @@ export function PartnerStatusWidget({ statuses, emptyText }: PartnerStatusWidget
         style={{
           height: 'match_parent',
           width: 'match_parent',
-          backgroundColor: colors.card,
+          backgroundColor,
           borderRadius: 20,
           alignItems: 'center',
           justifyContent: 'center',
@@ -40,7 +43,7 @@ export function PartnerStatusWidget({ statuses, emptyText }: PartnerStatusWidget
       style={{
         height: 'match_parent',
         width: 'match_parent',
-        backgroundColor: colors.card,
+        backgroundColor,
         borderRadius: 20,
         padding: 8,
       }}

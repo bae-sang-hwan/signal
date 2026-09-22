@@ -49,14 +49,14 @@ export const ja: Translations = {
     bannerTitle: 'まだ誰ともつながっていません',
     bannerDesc: '相手を招待すると、お互いの状態が見えるようになります。',
     invite: 'パートナーを招待する',
-    confirmTitle: '状態を変更しますか？',
+    confirmTitle: "'{{caption}}'の状態に変更しますか？",
   },
   homeConnected: {
     greeting: 'こんにちは、{{name}}さん',
     myStatusLabel: '自分の状態',
     status: '今の状態: {{caption}}',
     inviteMore: 'もっと招待する',
-    confirmTitle: '状態を変更しますか？',
+    confirmTitle: "'{{caption}}'の状態に変更しますか？",
     confirmSubtitle: 'つながっている人にプッシュ通知が届きます。',
   },
   inviteCode: {
@@ -82,6 +82,7 @@ export const ja: Translations = {
     notifications: '通知',
     appInfo: 'アプリ情報',
     language: '言語',
+    widgetOpacity: 'ウィジェットの背景の透明度',
     contactUs: 'お問い合わせ',
     contactSubject: 'SignalMateに関するお問い合わせ',
     disconnect: '連携を解除',
@@ -116,6 +117,10 @@ export const ja: Translations = {
     korean: '한국어',
     english: 'English',
     japanese: '日本語',
+  },
+  widgetSettings: {
+    title: 'ウィジェットの背景の透明度',
+    desc: 'ホーム画面ウィジェットの背景の透明度を調整します。',
   },
   signalCaptions: {
     red: '邪魔しないでください',

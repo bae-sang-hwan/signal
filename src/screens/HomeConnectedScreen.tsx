@@ -141,7 +141,9 @@ export function HomeConnectedScreen({ navigation }: Props) {
 
       <ConfirmModal
         visible={pendingColor !== null}
-        title={t('homeConnected.confirmTitle')}
+        title={t('homeConnected.confirmTitle', {
+          caption: pendingColor ? resolveCaption(myCaptions, pendingColor, t) : '',
+        })}
         subtitle={t('homeConnected.confirmSubtitle')}
         onCancel={() => setPendingColor(null)}
         onConfirm={confirmColorChange}

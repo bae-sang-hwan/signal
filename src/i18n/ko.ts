@@ -47,14 +47,14 @@ export const ko = {
     bannerTitle: '아직 연결된 사람이 없어요',
     bannerDesc: '상대를 초대하면 서로의 상태가 보여요.',
     invite: '파트너 초대하기',
-    confirmTitle: '상태를 변경할까요?',
+    confirmTitle: "'{{caption}}' 상태로 변경할까요?",
   },
   homeConnected: {
     greeting: '안녕, {{name}}',
     myStatusLabel: '내 상태',
     status: '나의 상태: {{caption}}',
     inviteMore: '사람 더 초대하기',
-    confirmTitle: '상태를 변경할까요?',
+    confirmTitle: "'{{caption}}' 상태로 변경할까요?",
     confirmSubtitle: '연결된 사람에게 푸시알림이 갑니다.',
   },
   inviteCode: {
@@ -80,6 +80,7 @@ export const ko = {
     notifications: '알림',
     appInfo: '앱 정보',
     language: '언어',
+    widgetOpacity: '위젯 배경 투명도',
     contactUs: '문의하기',
     contactSubject: 'SignalMate 문의',
     disconnect: '연결 해제',
@@ -114,6 +115,10 @@ export const ko = {
     korean: '한국어',
     english: 'English',
     japanese: '日本語',
+  },
+  widgetSettings: {
+    title: '위젯 배경 투명도',
+    desc: '홈 화면 위젯의 배경 투명도를 조절해요.',
   },
   signalCaptions: {
     red: '방해하지 마세요',

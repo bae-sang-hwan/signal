@@ -12,4 +12,5 @@ export type RootStackParamList = {
   AppInfo: undefined;
   PrivacyPolicy: undefined;
   Language: undefined;
+  WidgetSettings: undefined;
 };

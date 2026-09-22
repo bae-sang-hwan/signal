@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Linking, StyleSheet, Switch, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, StyleSheet, Switch, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useFocusEffect } from '@react-navigation/native';
 import { deleteUser, signOut } from '@react-native-firebase/auth';
@@ -22,17 +22,29 @@ import { auth, db } from '../lib/firebase';
 import { isValidNickname, NICKNAME_MAX_LEN } from '../lib/nickname';
 import { usePartner } from '../lib/usePartner';
 import { checkNotificationPermission, openNotificationSettings } from '../lib/fcm';
-import { clearAllPartnerStatuses, clearMyStatus, removePartnerStatus } from '../lib/partnerStatusCache';
-import { useTranslation } from '../i18n';
-import { CONTACT_EMAIL } from '../lib/contact';
+import {
+  clearAllPartnerStatuses,
+  clearMyStatus,
+  DEFAULT_WIDGET_OPACITY,
+  getWidgetOpacity,
+  removePartnerStatus,
+} from '../lib/partnerStatusCache';
+import { AppLanguage, useTranslation } from '../i18n';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Settings'>;
 
+const LANGUAGE_LABEL_KEYS: Record<AppLanguage, string> = {
+  ko: 'language.korean',
+  en: 'language.english',
+  ja: 'language.japanese',
+};
+
 export function SettingsScreen({ navigation }: Props) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [nickname, setNickname] = useState<string | null>(null);
   const [pairIds, setPairIds] = useState<string[]>([]);
   const [notificationsGranted, setNotificationsGranted] = useState<boolean | null>(null);
+  const [widgetOpacity, setWidgetOpacityState] = useState(DEFAULT_WIDGET_OPACITY);
 
   const [editingNickname, setEditingNickname] = useState(false);
   const [nicknameDraft, setNicknameDraft] = useState('');
@@ -67,9 +79,14 @@ export function SettingsScreen({ navigation }: Props) {
     }, []),
   );
 
-  function handleContactUs() {
-    Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('settings.contactSubject'))}`);
-  }
+  // 위젯 설정 화면에서 바꾸고 돌아올 수 있으니, 설정 화면에 다시 돌아올 때마다 다시 읽는다.
+  useFocusEffect(
+    useCallback(() => {
+      getWidgetOpacity()
+        .then(setWidgetOpacityState)
+        .catch(() => {});
+    }, []),
+  );
 
   function openNicknameEditor() {
     setNicknameDraft(nickname ?? '');
@@ -233,8 +250,14 @@ export function SettingsScreen({ navigation }: Props) {
 
       <Row
         label={t('settings.language')}
-        value="›"
+        value={t(LANGUAGE_LABEL_KEYS[language])}
         onPress={() => navigation.navigate('Language')}
+      />
+
+      <Row
+        label={t('settings.widgetOpacity')}
+        value={`${Math.round(widgetOpacity * 100)}%`}
+        onPress={() => navigation.navigate('WidgetSettings')}
       />
 
       {pairIds.map((pairId) => (
@@ -248,8 +271,6 @@ export function SettingsScreen({ navigation }: Props) {
       ))}
 
       <Row label={t('settings.appInfo')} value="›" onPress={() => navigation.navigate('AppInfo')} />
-
-      <Row label={t('settings.contactUs')} value="›" onPress={handleContactUs} />
 
       <Row
         label={t('settings.deleteAccount')}

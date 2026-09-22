@@ -5,7 +5,7 @@ import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
 import { getMessaging, onMessage } from '@react-native-firebase/messaging';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { upsertPartnerStatus } from './src/lib/partnerStatusCache';
+import { clearLocalCacheOnce, upsertPartnerStatus } from './src/lib/partnerStatusCache';
 import { SignalColor } from './src/theme/colors';
 import { LanguageProvider } from './src/i18n';
 
@@ -29,6 +29,10 @@ export default function App() {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
+
+  useEffect(() => {
+    clearLocalCacheOnce().catch(() => {});
+  }, []);
 
   useEffect(() => {
     return onMessage(getMessaging(), async (remoteMessage) => {

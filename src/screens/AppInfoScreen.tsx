@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Linking, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { ScreenContainer } from '../components/ScreenContainer';
@@ -7,11 +7,17 @@ import { colors } from '../theme/colors';
 import { fonts } from '../theme/fonts';
 import appConfig from '../../app.json';
 import { useTranslation } from '../i18n';
+import { CONTACT_EMAIL } from '../lib/contact';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AppInfo'>;
 
 export function AppInfoScreen({ navigation }: Props) {
   const { t } = useTranslation();
+
+  function handleContactUs() {
+    Linking.openURL(`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(t('settings.contactSubject'))}`);
+  }
+
   return (
     <ScreenContainer style={styles.content}>
       <Text style={styles.title}>{t('appInfo.title')}</Text>
@@ -26,6 +32,11 @@ export function AppInfoScreen({ navigation }: Props) {
         style={styles.row}
       >
         <Text style={styles.rowLabel}>{t('appInfo.privacyPolicy')}</Text>
+        <Text style={styles.rowValue}>›</Text>
+      </HapticPressable>
+
+      <HapticPressable onPress={handleContactUs} style={styles.row}>
+        <Text style={styles.rowLabel}>{t('settings.contactUs')}</Text>
         <Text style={styles.rowValue}>›</Text>
       </HapticPressable>
 

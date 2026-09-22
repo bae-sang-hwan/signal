@@ -14,6 +14,7 @@ import { ColorCaptionsScreen } from '../screens/ColorCaptionsScreen';
 import { AppInfoScreen } from '../screens/AppInfoScreen';
 import { PrivacyPolicyScreen } from '../screens/PrivacyPolicyScreen';
 import { LanguageScreen } from '../screens/LanguageScreen';
+import { WidgetSettingsScreen } from '../screens/WidgetSettingsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -37,6 +38,7 @@ export function RootNavigator() {
         <Stack.Screen name="AppInfo" component={AppInfoScreen} />
         <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
         <Stack.Screen name="Language" component={LanguageScreen} />
+        <Stack.Screen name="WidgetSettings" component={WidgetSettingsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

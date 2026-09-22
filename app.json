@@ -70,7 +70,7 @@
               "label": "연결된 사람 상태",
               "description": "연결된 사람들의 현재 SignalMate 색상을 목록으로 보여줘요",
               "minWidth": "160dp",
-              "minHeight": "120dp",
+              "minHeight": "74dp",
               "resizeMode": "vertical",
               "maxResizeHeight": "300dp",
               "updatePeriodMillis": 1800000
